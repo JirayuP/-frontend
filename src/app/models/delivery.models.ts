@@ -26,6 +26,7 @@ export interface Order {
 }
 
 export interface OptimizedStop {
+  itemId?: number;
   orderId: number;
   stopSequence: number;
   customerName: string;
@@ -38,6 +39,7 @@ export interface OptimizedStop {
   distanceFromPrevKm: number;
   estArrival: string;
   navigationUrl: string;
+  deliveryStatus?: 'PENDING' | 'DELIVERED' | 'FAILED';
 }
 
 export interface ProposedTask {
@@ -54,6 +56,12 @@ export interface ProposedTask {
   isLate: boolean;
   stops: OptimizedStop[];
   waypoints: [number, number][];
+  status?: 'CONFIRMED' | 'IN_PROGRESS' | 'DELIVERED' | 'CANCELLED';
+  rider?: {
+    name: string;
+    phone: string;
+    vehiclePlate: string | null;
+  } | null;
 }
 
 export type RouteStrategy = 'LOWEST_COST' | 'FASTEST' | 'FEWEST_RIDERS';

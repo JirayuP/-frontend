@@ -45,7 +45,7 @@ import * as L from 'leaflet';
                 💡 คำแนะนำ: หาก Deploy บน Railway กรุณาไปที่แท็บ <strong>Variables</strong> แล้วเพิ่ม <code>DATABASE_URL</code> ของ MySQL
               </p>
             </div>
-            <button (click)="loadOrders()" class="text-xs px-3 py-1.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
+            <button (click)="reloadDashboard()" class="text-xs px-3 py-1.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
               ลองใหม่
             </button>
           </div>
@@ -71,6 +71,12 @@ import * as L from 'leaflet';
               [disabled]="loading()"
               class="px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg transition">
               ล้างข้อมูล
+            </button>
+            <button
+              (click)="reloadDashboard()"
+              [disabled]="loading()"
+              class="px-3 py-2 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition disabled:opacity-50">
+              ↻ โหลดสถานะล่าสุด
             </button>
           </div>
 
@@ -192,6 +198,11 @@ import * as L from 'leaflet';
                         <span class="w-3.5 h-3.5 rounded-full inline-block" [style.background-color]="task.routeColor"></span>
                         <span class="font-bold text-sm text-slate-800">{{ task.taskNumber }}</span>
                         <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded">คันที่ {{ idx + 1 }}</span>
+                        @if (task.status) {
+                          <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" [ngClass]="taskStatusClass(task.status)">
+                            {{ taskStatusLabel(task.status) }}
+                          </span>
+                        }
                       </div>
                       @if (isConfirmed()) {
                         <button (click)="openQrModal(task.taskNumber)" class="text-xs px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition flex items-center gap-1">
@@ -221,13 +232,20 @@ import * as L from 'leaflet';
                       </div>
                     </div>
 
+                    @if (task.rider) {
+                      <div class="mb-3 text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                        🛵 ไรเดอร์: <strong>{{ task.rider.name }}</strong> · {{ task.rider.phone }}
+                      </div>
+                    }
+
                     <!-- Stops Timeline -->
                     <div class="space-y-1.5 text-xs">
                       @for (stop of task.stops; track stop.orderId) {
-                        <div class="flex items-center justify-between text-slate-600 bg-slate-50/50 px-2.5 py-1.5 rounded border border-slate-100">
+                        <div class="flex items-center justify-between px-2.5 py-1.5 rounded border"
+                             [ngClass]="stop.deliveryStatus === 'DELIVERED' ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : 'text-slate-600 bg-slate-50/50 border-slate-100'">
                           <div class="flex items-center space-x-2">
                             <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">
-                              {{ stop.stopSequence }}
+                              {{ stop.deliveryStatus === 'DELIVERED' ? '✓' : stop.stopSequence }}
                             </span>
                             <span class="font-medium text-slate-800 truncate max-w-[150px]">{{ stop.customerName }}</span>
                           </div>
@@ -296,7 +314,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
   private routeLayers: L.LayerGroup = L.layerGroup();
 
   ngOnInit() {
-    this.loadOrders();
+    this.reloadDashboard();
     setTimeout(() => this.initMap(), 100);
   }
 
@@ -308,6 +326,33 @@ export class DispatcherComponent implements OnInit, OnDestroy {
 
   pendingCount(): number {
     return this.orders().filter(o => o.status === 'PENDING').length;
+  }
+
+  reloadDashboard() {
+    this.loadOrders();
+    this.restoreTodayRoutes();
+  }
+
+  restoreTodayRoutes() {
+    this.api.getTodayRoutes().subscribe({
+      next: (result) => {
+        if (result.tasks.length === 0) {
+          if (this.isConfirmed()) this.optimizationData.set(null);
+          this.isConfirmed.set(false);
+          this.routeLayers.clearLayers();
+          return;
+        }
+
+        this.optimizationData.set(result);
+        this.isConfirmed.set(true);
+        this.apiError.set(null);
+        this.renderRoutesOnMap(result);
+      },
+      error: (err) => {
+        const errMsg = err.error?.error || err.message || 'ไม่สามารถโหลดใบงานที่ปล่อยแล้วได้';
+        this.apiError.set(errMsg);
+      }
+    });
   }
 
   loadOrders() {
@@ -405,6 +450,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
         this.renderRoutesOnMap(response.result);
         alert('ยืนยันและปล่อยงานให้ไรเดอร์เรียบร้อย!');
         this.loadOrders();
+        this.restoreTodayRoutes();
       },
       error: (err) => {
         this.loading.set(false);
@@ -418,6 +464,26 @@ export class DispatcherComponent implements OnInit, OnDestroy {
       next: (res) => this.activeQr.set(res),
       error: (err) => alert('ไม่สามารถสร้าง QR Code ได้')
     });
+  }
+
+  taskStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      CONFIRMED: 'รอไรเดอร์รับ',
+      IN_PROGRESS: 'กำลังจัดส่ง',
+      DELIVERED: 'ส่งครบแล้ว',
+      CANCELLED: 'ยกเลิก'
+    };
+    return labels[status] ?? status;
+  }
+
+  taskStatusClass(status: string): string {
+    const classes: Record<string, string> = {
+      CONFIRMED: 'bg-blue-100 text-blue-700',
+      IN_PROGRESS: 'bg-amber-100 text-amber-700',
+      DELIVERED: 'bg-emerald-100 text-emerald-700',
+      CANCELLED: 'bg-red-100 text-red-700'
+    };
+    return classes[status] ?? 'bg-slate-100 text-slate-600';
   }
 
   private initMap() {
@@ -453,6 +519,9 @@ export class DispatcherComponent implements OnInit, OnDestroy {
       .bindPopup('<b>ร้านข้าวกล่องเดลิเวอรี ส่งด่วนมื้อเที่ยง (Hub)</b><br>เวลาออกส่ง: 11:30 น.')
       .addTo(this.map)
       .openPopup();
+
+    const currentResult = this.optimizationData();
+    if (currentResult) this.renderRoutesOnMap(currentResult);
   }
 
   private renderRoutesOnMap(result: OptimizationResult) {

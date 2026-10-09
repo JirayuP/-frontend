@@ -113,6 +113,10 @@ export class DeliveryApiService {
     return this.http.post<OptimizationResult>(`${this.apiUrl}/routes/optimize`, {});
   }
 
+  getTodayRoutes(): Observable<OptimizationResult> {
+    return this.http.get<OptimizationResult>(`${this.apiUrl}/routes/today`);
+  }
+
   confirmTasks(tasks: ProposedTask[], strategy: RouteStrategy): Observable<ConfirmTasksResponse> {
     return this.http.post<ConfirmTasksResponse>(`${this.apiUrl}/routes/confirm`, { tasks, strategy });
   }
