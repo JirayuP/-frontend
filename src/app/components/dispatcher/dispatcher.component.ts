@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeliveryApiService } from '../../services/delivery-api.service.js';
-import { Order, OptimizationResult, ProposedTask } from '../../models/delivery.models.js';
+import { OptimizationAlternative, Order, OptimizationResult } from '../../models/delivery.models.js';
 import * as L from 'leaflet';
 
 @Component({
@@ -21,6 +21,9 @@ import * as L from 'leaflet';
             </div>
           </div>
           <div class="flex items-center space-x-2">
+            <a href="/manage" class="px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition">
+              👥 จัดการลูกค้าและออเดอร์
+            </a>
             <a href="/rider" target="_blank" class="px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition">
               🛵 หน้าจอไรเดอร์ (มือถือ) ↗
             </a>
@@ -86,6 +89,35 @@ import * as L from 'leaflet';
 
         <!-- Financial KPI Dashboard (เมื่อคำนวณแล้ว) -->
         @if (optimizationData()) {
+          @if (!isConfirmed() && optimizationData()!.alternatives.length > 0) {
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div>
+                  <h2 class="font-bold text-sm text-slate-800">เลือกแผนจัดส่งก่อนปล่อยงาน</h2>
+                  <p class="text-xs text-slate-500">ระบบคำนวณใหม่จากออเดอร์ชุดเดียวกันและยืนยันแผนที่เลือกกับเซิร์ฟเวอร์อีกครั้ง</p>
+                </div>
+                <span class="text-xs font-semibold text-orange-700 bg-orange-50 px-3 py-1 rounded-full">
+                  แผนปัจจุบัน: {{ optimizationData()!.strategyLabel }}
+                </span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                @for (alternative of optimizationData()!.alternatives; track alternative.strategy) {
+                  <button
+                    type="button"
+                    (click)="selectPlan(alternative)"
+                    [class]="optimizationData()!.strategy === alternative.strategy
+                      ? 'text-left p-3 rounded-lg border-2 border-orange-500 bg-orange-50'
+                      : 'text-left p-3 rounded-lg border border-slate-200 hover:border-orange-300 bg-white'">
+                    <span class="font-bold text-sm block">{{ alternative.label }}</span>
+                    <span class="text-xs text-slate-500 block mt-1">{{ alternative.description }}</span>
+                    <span class="text-xs text-slate-700 block mt-2">
+                      {{ alternative.summary.totalTasks }} ไรเดอร์ · {{ alternative.summary.totalDistanceKm }} กม. · {{ alternative.summary.totalRiderFee | number:'1.0-0' }} ฿
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
           <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
               <span class="text-xs text-slate-500 block">รายได้รวม (65 บ./กล่อง)</span>
@@ -117,7 +149,7 @@ import * as L from 'leaflet';
               <span class="text-lg font-bold block mt-0.5" [ngClass]="optimizationData()!.summary.allDeliveredOnTime ? 'text-emerald-700' : 'text-red-700'">
                 {{ optimizationData()!.summary.allDeliveredOnTime ? '✓ ทันทุกคัน' : '⚠ มีรอบเกินเวลา' }}
               </span>
-              <span class="text-xs text-slate-500 block">ไม่เกิน 12:30 น. แน่นอน</span>
+              <span class="text-xs text-slate-500 block">ประมาณการรวมเวลาส่งของ ไม่เกิน 12:30 น.</span>
             </div>
           </div>
         }
@@ -161,9 +193,13 @@ import * as L from 'leaflet';
                         <span class="font-bold text-sm text-slate-800">{{ task.taskNumber }}</span>
                         <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded">คันที่ {{ idx + 1 }}</span>
                       </div>
-                      <button (click)="openQrModal(task.taskNumber)" class="text-xs px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition flex items-center gap-1">
-                        <span>📲</span> QR Code
-                      </button>
+                      @if (isConfirmed()) {
+                        <button (click)="openQrModal(task.taskNumber)" class="text-xs px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition flex items-center gap-1">
+                          <span>📲</span> QR Code
+                        </button>
+                      } @else {
+                        <span class="text-[11px] px-2 py-1 bg-amber-50 text-amber-700 rounded-lg">ยืนยันก่อนสร้าง QR</span>
+                      }
                     </div>
 
                     <div class="grid grid-cols-4 gap-2 text-center py-2 bg-slate-50 rounded-lg text-xs mb-3">
@@ -339,20 +375,34 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     });
   }
 
+  selectPlan(alternative: OptimizationAlternative) {
+    const current = this.optimizationData();
+    if (!current || this.isConfirmed()) return;
+
+    const selected: OptimizationResult = {
+      ...current,
+      strategy: alternative.strategy,
+      strategyLabel: alternative.label,
+      summary: alternative.summary,
+      tasks: alternative.tasks
+    };
+    this.optimizationData.set(selected);
+    this.renderRoutesOnMap(selected);
+  }
+
   confirmDispatch() {
     const data = this.optimizationData();
     if (!data || this.loading()) return;
 
     this.loading.set(true);
-    this.api.confirmTasks(data.tasks).subscribe({
+    this.api.confirmTasks(data.tasks, data.strategy).subscribe({
       next: (response) => {
         // Confirmation is authoritative: the server recalculates values and
         // may allocate different task numbers after a concurrent dispatch.
-        this.optimizationData.update((current) =>
-          current ? { ...current, tasks: response.tasks } : null
-        );
+        this.optimizationData.set(response.result);
         this.isConfirmed.set(true);
         this.loading.set(false);
+        this.renderRoutesOnMap(response.result);
         alert('ยืนยันและปล่อยงานให้ไรเดอร์เรียบร้อย!');
         this.loadOrders();
       },

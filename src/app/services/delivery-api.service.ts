@@ -1,7 +1,18 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ConfirmTasksResponse, Order, OptimizationResult, ProposedTask, RiderTaskDetail } from '../models/delivery.models.js';
+import {
+  ConfirmTasksResponse,
+  Customer,
+  CustomerListResponse,
+  CustomerMutationResponse,
+  Order,
+  OrderMutationResponse,
+  OptimizationResult,
+  ProposedTask,
+  RiderTaskDetail,
+  RouteStrategy
+} from '../models/delivery.models.js';
 
 @Injectable({
   providedIn: 'root'
@@ -25,12 +36,12 @@ export class DeliveryApiService {
     return this.http.get<Order>(`${this.apiUrl}/orders/${id}`);
   }
 
-  createOrder(data: { customerId: number; boxAmount: number }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/orders`, data);
+  createOrder(data: { customerId: number; boxAmount: number }): Observable<OrderMutationResponse> {
+    return this.http.post<OrderMutationResponse>(`${this.apiUrl}/orders`, data);
   }
 
-  updateOrder(id: number, data: { boxAmount?: number; status?: string }): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/orders/${id}`, data);
+  updateOrder(id: number, data: { boxAmount?: number; status?: string }): Observable<OrderMutationResponse> {
+    return this.http.patch<OrderMutationResponse>(`${this.apiUrl}/orders/${id}`, data);
   }
 
   deleteOrder(id: number): Observable<any> {
@@ -58,16 +69,16 @@ export class DeliveryApiService {
   }
 
   // 2. Customers
-  getCustomers(search?: string): Observable<any> {
+  getCustomers(search?: string): Observable<CustomerListResponse> {
     let params = new HttpParams();
     if (search) {
       params = params.set('search', search);
     }
-    return this.http.get<any>(`${this.apiUrl}/customers`, { params });
+    return this.http.get<CustomerListResponse>(`${this.apiUrl}/customers`, { params });
   }
 
-  getCustomerById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/customers/${id}`);
+  getCustomerById(id: number): Observable<Customer> {
+    return this.http.get<Customer>(`${this.apiUrl}/customers/${id}`);
   }
 
   searchCustomers(name: string): Observable<any> {
@@ -83,12 +94,12 @@ export class DeliveryApiService {
     return this.http.get<any>(`${this.apiUrl}/customers/nearby`, { params });
   }
 
-  createCustomer(customer: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/customers`, customer);
+  createCustomer(customer: Omit<Customer, 'id' | '_count' | 'orders'>): Observable<CustomerMutationResponse> {
+    return this.http.post<CustomerMutationResponse>(`${this.apiUrl}/customers`, customer);
   }
 
-  updateCustomer(id: number, customer: any): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/customers/${id}`, customer);
+  updateCustomer(id: number, customer: Partial<Omit<Customer, 'id' | '_count' | 'orders'>>): Observable<CustomerMutationResponse> {
+    return this.http.patch<CustomerMutationResponse>(`${this.apiUrl}/customers/${id}`, customer);
   }
 
   deleteCustomer(id: number): Observable<any> {
@@ -100,8 +111,8 @@ export class DeliveryApiService {
     return this.http.post<OptimizationResult>(`${this.apiUrl}/routes/optimize`, {});
   }
 
-  confirmTasks(tasks: ProposedTask[]): Observable<ConfirmTasksResponse> {
-    return this.http.post<ConfirmTasksResponse>(`${this.apiUrl}/routes/confirm`, { tasks });
+  confirmTasks(tasks: ProposedTask[], strategy: RouteStrategy): Observable<ConfirmTasksResponse> {
+    return this.http.post<ConfirmTasksResponse>(`${this.apiUrl}/routes/confirm`, { tasks, strategy });
   }
 
   // 3. Rider & Tasks

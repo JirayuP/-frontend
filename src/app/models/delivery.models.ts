@@ -5,6 +5,8 @@ export interface Customer {
   addressDetail: string;
   latitude: number;
   longitude: number;
+  _count?: { orders: number };
+  orders?: Order[];
 }
 
 export interface Order {
@@ -39,6 +41,7 @@ export interface OptimizedStop {
 }
 
 export interface ProposedTask {
+  id?: number;
   taskNumber: string;
   routeColor: string;
   totalDistanceKm: number;
@@ -53,20 +56,34 @@ export interface ProposedTask {
   waypoints: [number, number][];
 }
 
+export type RouteStrategy = 'LOWEST_COST' | 'FASTEST' | 'FEWEST_RIDERS';
+
+export interface OptimizationSummary {
+  totalOrders: number;
+  totalTasks: number;
+  totalBoxes: number;
+  totalDistanceKm: number;
+  totalRevenue: number;
+  totalFoodCost: number;
+  totalRiderFee: number;
+  netProfit: number;
+  allDeliveredOnTime: boolean;
+  departureTime: string;
+  deadlineTime: string;
+}
+
+export interface OptimizationAlternative {
+  strategy: RouteStrategy;
+  label: string;
+  description: string;
+  summary: OptimizationSummary;
+  tasks: ProposedTask[];
+}
+
 export interface OptimizationResult {
-  summary: {
-    totalOrders: number;
-    totalTasks: number;
-    totalBoxes: number;
-    totalDistanceKm: number;
-    totalRevenue: number;
-    totalFoodCost: number;
-    totalRiderFee: number;
-    netProfit: number;
-    allDeliveredOnTime: boolean;
-    departureTime: string;
-    deadlineTime: string;
-  };
+  strategy: RouteStrategy;
+  strategyLabel: string;
+  summary: OptimizationSummary;
   hub: {
     name: string;
     latitude: number;
@@ -74,11 +91,27 @@ export interface OptimizationResult {
     radiusKm: number;
   };
   tasks: ProposedTask[];
+  alternatives: OptimizationAlternative[];
 }
 
 export interface ConfirmTasksResponse {
   message: string;
-  tasks: ProposedTask[];
+  result: OptimizationResult;
+}
+
+export interface CustomerListResponse {
+  count: number;
+  customers: Customer[];
+}
+
+export interface CustomerMutationResponse {
+  message: string;
+  customer: Customer;
+}
+
+export interface OrderMutationResponse {
+  message: string;
+  order: Order;
 }
 
 export interface RiderTaskDetail {
