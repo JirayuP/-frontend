@@ -264,10 +264,37 @@ body {
 }
 
 /* Header remains white even when legacy gradient utility classes are present. */
-.delivery-theme > header {
+.delivery-theme > header.delivery-app-header,
+.delivery-theme > header.delivery-app-header[class*="from-"] {
   color: #0f0f0f !important;
   background-color: rgba(255, 255, 255, 0.96) !important;
   background-image: none !important;
+}
+
+.delivery-theme .delivery-header-actions {
+  flex: 0 0 auto;
+}
+
+.delivery-theme .delivery-header-link {
+  width: auto !important;
+  max-width: none !important;
+  color: #0f0f0f !important;
+  background-color: #f2f2f2 !important;
+  border: 1px solid #e5e5e5;
+  white-space: nowrap;
+}
+
+.delivery-theme .delivery-header-link:hover {
+  color: #ffffff !important;
+  background-color: #cc0000 !important;
+  border-color: #cc0000;
+}
+
+@media (max-width: 639px) {
+  .delivery-theme .delivery-header-link {
+    min-width: 72px;
+    padding-inline: 10px !important;
+  }
 }
 
 button,

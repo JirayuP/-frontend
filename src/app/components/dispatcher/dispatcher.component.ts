@@ -11,21 +11,21 @@ import * as L from 'leaflet';
   template: `
     <div class="delivery-theme min-h-screen bg-slate-50 text-slate-800 pb-20 sm:pb-12">
       <!-- Navbar -->
-      <header class="bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg sticky top-0 z-30">
+      <header class="delivery-app-header bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-16 py-2.5 flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div class="flex flex-1 items-center gap-2 sm:gap-3 min-w-0">
             <span class="text-xl sm:text-2xl shrink-0">🍱</span>
             <div class="min-w-0">
               <h1 class="text-sm sm:text-lg font-bold leading-tight truncate">ระบบจัดเส้นทางและแบ่งงานไรเดอร์อัจฉริยะ</h1>
               <p class="hidden sm:block text-xs text-orange-100">ร้านข้าวกล่องเดลิเวอรี ส่งด่วนมื้อเที่ยง (ม.มหาสารคาม ขามเรียง)</p>
             </div>
           </div>
-          <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <a href="/manage" class="min-h-10 px-2 sm:px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition inline-flex items-center gap-1">
-              👥 <span class="hidden sm:inline">จัดการลูกค้าและออเดอร์</span>
+          <div class="delivery-header-actions flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <a href="/manage" class="delivery-header-link min-h-10 px-2 sm:px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition inline-flex items-center justify-center gap-1">
+              👥 <span class="sm:hidden">ลูกค้า</span><span class="hidden sm:inline">จัดการลูกค้าและออเดอร์</span>
             </a>
-            <a href="/rider" target="_blank" class="min-h-10 px-2 sm:px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition inline-flex items-center gap-1">
-              🛵 <span class="hidden sm:inline">หน้าจอไรเดอร์ (มือถือ) ↗</span>
+            <a href="/rider" target="_blank" class="delivery-header-link min-h-10 px-2 sm:px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition inline-flex items-center justify-center gap-1">
+              🛵 <span class="sm:hidden">ไรเดอร์</span><span class="hidden sm:inline">หน้าจอไรเดอร์ (มือถือ) ↗</span>
             </a>
           </div>
         </div>

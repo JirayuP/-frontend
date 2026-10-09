@@ -20,13 +20,13 @@ interface CustomerForm {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="delivery-theme min-h-screen bg-slate-50 text-slate-800 pb-20 sm:pb-12">
-      <header class="bg-gradient-to-r from-slate-800 to-slate-700 text-white shadow-lg sticky top-0 z-30">
+      <header class="delivery-app-header bg-gradient-to-r from-slate-800 to-slate-700 text-white shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-3 sm:px-4 min-h-16 py-2.5 flex items-center justify-between gap-3">
           <div class="min-w-0">
             <h1 class="font-bold text-sm sm:text-base truncate">จัดการลูกค้าและออเดอร์</h1>
             <p class="hidden sm:block text-xs text-slate-300">รับเฉพาะที่อยู่ในรัศมี 3 กม. จากร้าน</p>
           </div>
-          <a href="/" class="min-h-10 px-3 py-2 text-xs font-semibold bg-white/15 rounded-lg hover:bg-white/25 inline-flex items-center shrink-0">
+          <a href="/" class="delivery-header-link min-h-10 px-3 py-2 text-xs font-semibold bg-white/15 rounded-lg hover:bg-white/25 inline-flex items-center shrink-0">
             ← <span class="hidden sm:inline ml-1">กลับหน้าจัดเส้นทาง</span><span class="sm:hidden ml-1">กลับ</span>
           </a>
         </div>

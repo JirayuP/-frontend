@@ -13,7 +13,7 @@ import { Html5Qrcode } from 'html5-qrcode';
   template: `
     <div class="delivery-theme min-h-[100dvh] bg-slate-900 text-slate-100 flex flex-col justify-between mobile-safe-bottom">
       <!-- Mobile Top Bar -->
-      <header class="bg-slate-800 border-b border-slate-700 px-3 sm:px-4 py-2.5 sm:py-3.5 sticky top-0 z-20 flex items-center justify-between gap-3">
+      <header class="delivery-app-header bg-slate-800 border-b border-slate-700 px-3 sm:px-4 py-2.5 sm:py-3.5 sticky top-0 z-20 flex items-center justify-between gap-3">
         <div class="flex items-center gap-2 min-w-0">
           <span class="text-xl shrink-0">🛵</span>
           <div class="min-w-0">
@@ -21,7 +21,7 @@ import { Html5Qrcode } from 'html5-qrcode';
             <p class="hidden sm:block text-[10px] text-slate-400">ร้านข้าวกล่องเดลิเวอรี ม.มหาสารคาม</p>
           </div>
         </div>
-        <a routerLink="/" class="min-h-10 px-2 inline-flex items-center text-xs text-orange-400 font-medium hover:underline shrink-0">
+        <a routerLink="/" class="delivery-header-link min-h-10 px-2 inline-flex items-center text-xs text-orange-400 font-medium hover:underline shrink-0">
           <span class="hidden sm:inline">หน้าจัดงาน ↗</span><span class="sm:hidden">จัดงาน ↗</span>
         </a>
       </header>
