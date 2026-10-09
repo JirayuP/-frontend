@@ -9,32 +9,32 @@ import * as L from 'leaflet';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-slate-50 text-slate-800 pb-12">
+    <div class="delivery-theme min-h-screen bg-slate-50 text-slate-800 pb-20 sm:pb-12">
       <!-- Navbar -->
       <header class="bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="text-2xl">🍱</span>
-            <div>
-              <h1 class="text-lg font-bold leading-tight">ระบบจัดเส้นทางและแบ่งงานไรเดอร์อัจฉริยะ</h1>
-              <p class="text-xs text-orange-100">ร้านข้าวกล่องเดลิเวอรี ส่งด่วนมื้อเที่ยง (ม.มหาสารคาม ขามเรียง)</p>
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-16 py-2.5 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+            <span class="text-xl sm:text-2xl shrink-0">🍱</span>
+            <div class="min-w-0">
+              <h1 class="text-sm sm:text-lg font-bold leading-tight truncate">ระบบจัดเส้นทางและแบ่งงานไรเดอร์อัจฉริยะ</h1>
+              <p class="hidden sm:block text-xs text-orange-100">ร้านข้าวกล่องเดลิเวอรี ส่งด่วนมื้อเที่ยง (ม.มหาสารคาม ขามเรียง)</p>
             </div>
           </div>
-          <div class="flex items-center space-x-2">
-            <a href="/manage" class="px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition">
-              👥 จัดการลูกค้าและออเดอร์
+          <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <a href="/manage" class="min-h-10 px-2 sm:px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition inline-flex items-center gap-1">
+              👥 <span class="hidden sm:inline">จัดการลูกค้าและออเดอร์</span>
             </a>
-            <a href="/rider" target="_blank" class="px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition">
-              🛵 หน้าจอไรเดอร์ (มือถือ) ↗
+            <a href="/rider" target="_blank" class="min-h-10 px-2 sm:px-3 py-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-lg transition inline-flex items-center gap-1">
+              🛵 <span class="hidden sm:inline">หน้าจอไรเดอร์ (มือถือ) ↗</span>
             </a>
           </div>
         </div>
       </header>
 
-      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+      <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-4 sm:mt-6">
         <!-- Error Banner หาก Backend หรือ Database มีปัญหา -->
         @if (apiError()) {
-          <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl shadow-sm flex items-start gap-3">
+          <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl shadow-sm flex flex-col sm:flex-row items-start gap-3">
             <span class="text-2xl">⚠️</span>
             <div class="flex-1">
               <h3 class="font-bold text-sm text-red-900">เกิดข้อผิดพลาดในการเชื่อมต่อ Database ของ Backend</h3>
@@ -45,7 +45,7 @@ import * as L from 'leaflet';
                 💡 คำแนะนำ: หาก Deploy บน Railway กรุณาไปที่แท็บ <strong>Variables</strong> แล้วเพิ่ม <code>DATABASE_URL</code> ของ MySQL
               </p>
             </div>
-            <button (click)="reloadDashboard()" class="text-xs px-3 py-1.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
+            <button (click)="reloadDashboard()" class="w-full sm:w-auto min-h-10 text-xs px-3 py-1.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
               ลองใหม่
             </button>
           </div>
@@ -53,34 +53,34 @@ import * as L from 'leaflet';
 
         <!-- Action Toolbar -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center space-x-3">
+          <div class="w-full xl:w-auto grid grid-cols-2 sm:flex sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
             <button 
               (click)="seedOrders()" 
               [disabled]="loading()"
-              class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded-lg shadow transition flex items-center gap-2">
+              class="min-h-11 px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-medium rounded-lg shadow transition flex items-center justify-center gap-2">
               <span>🎲</span> จำลอง 22 ออเดอร์ (รอบ มมส.)
             </button>
             <button 
               (click)="runOptimization()" 
               [disabled]="loading() || pendingCount() === 0"
-              class="px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-semibold rounded-lg shadow-md transition flex items-center gap-2 disabled:opacity-50">
+              class="min-h-11 px-3 sm:px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50">
               <span>⚡</span> คำนวณจัดเส้นทางอัตโนมัติ (VRP)
             </button>
             <button 
               (click)="clearAll()" 
               [disabled]="loading()"
-              class="px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg transition">
+              class="min-h-11 px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg transition">
               ล้างข้อมูล
             </button>
             <button
               (click)="reloadDashboard()"
               [disabled]="loading()"
-              class="px-3 py-2 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition disabled:opacity-50">
+              class="min-h-11 px-3 py-2 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition disabled:opacity-50">
               ↻ โหลดสถานะล่าสุด
             </button>
           </div>
 
-          <div class="flex items-center space-x-4 text-xs">
+          <div class="w-full xl:w-auto flex flex-wrap items-center gap-2 text-xs">
             <span class="px-3 py-1 bg-amber-100 text-amber-800 font-semibold rounded-full">
               รอจัดสรร: {{ pendingCount() }} รายการ
             </span>
@@ -163,20 +163,20 @@ import * as L from 'leaflet';
         <!-- Main Content Grid: Map + Tasks -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <!-- Left: Big Leaflet Map -->
-          <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div class="order-2 lg:order-1 lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
               <h2 class="font-bold text-sm text-slate-700 flex items-center gap-2">
                 <span>🗺️</span> แผนที่เส้นทางจัดส่งแยกตามสีไรเดอร์ (Mahasarakham University)
               </h2>
               <span class="text-xs text-slate-400">รัศมี 3 กม.</span>
             </div>
-            <div id="dispatch-map" class="w-full h-[540px]"></div>
+            <div id="dispatch-map" class="w-full h-[360px] sm:h-[440px] lg:h-[540px]"></div>
           </div>
 
           <!-- Right: Tasks & Confirmation -->
-          <div class="lg:col-span-5 flex flex-col space-y-4">
+          <div class="order-1 lg:order-2 lg:col-span-5 flex flex-col space-y-4">
             @if (optimizationData()) {
-              <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl p-4 shadow flex items-center justify-between">
+              <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl p-4 shadow flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 class="font-bold text-sm">ตรวจสอบเส้นทางเรียบร้อย</h3>
                   <p class="text-xs text-emerald-100">พร้อมปล่อยงานให้ไรเดอร์สแกน QR Code รับงาน</p>
@@ -184,7 +184,7 @@ import * as L from 'leaflet';
                 <button 
                   (click)="confirmDispatch()" 
                   [disabled]="isConfirmed() || loading()"
-                  class="px-4 py-2 bg-white text-emerald-800 hover:bg-emerald-50 text-xs font-bold rounded-lg shadow transition disabled:opacity-50">
+                  class="w-full sm:w-auto min-h-11 px-4 py-2 bg-white text-emerald-800 hover:bg-emerald-50 text-xs font-bold rounded-lg shadow transition disabled:opacity-50">
                   {{ isConfirmed() ? '✓ ปล่อยงานแล้ว' : '🚀 ยืนยันปล่อยงาน' }}
                 </button>
               </div>
@@ -193,8 +193,8 @@ import * as L from 'leaflet';
               <div class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
                 @for (task of optimizationData()!.tasks; track task.taskNumber; let idx = $index) {
                   <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 hover:shadow-md transition">
-                    <div class="flex items-center justify-between mb-2">
-                      <div class="flex items-center space-x-2">
+                    <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+                      <div class="flex flex-wrap items-center gap-2 min-w-0">
                         <span class="w-3.5 h-3.5 rounded-full inline-block" [style.background-color]="task.routeColor"></span>
                         <span class="font-bold text-sm text-slate-800">{{ task.taskNumber }}</span>
                         <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded">คันที่ {{ idx + 1 }}</span>
@@ -213,7 +213,7 @@ import * as L from 'leaflet';
                       }
                     </div>
 
-                    <div class="grid grid-cols-4 gap-2 text-center py-2 bg-slate-50 rounded-lg text-xs mb-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center py-2 bg-slate-50 rounded-lg text-xs mb-3">
                       <div>
                         <span class="text-slate-400 block">กล่องรวม</span>
                         <span class="font-bold text-slate-700">{{ task.totalBoxes }} กล่อง</span>
@@ -241,7 +241,7 @@ import * as L from 'leaflet';
                     <!-- Stops Timeline -->
                     <div class="space-y-1.5 text-xs">
                       @for (stop of task.stops; track stop.orderId) {
-                        <div class="flex items-center justify-between px-2.5 py-1.5 rounded border"
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 px-2.5 py-2 rounded border"
                              [ngClass]="stop.deliveryStatus === 'DELIVERED' ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : 'text-slate-600 bg-slate-50/50 border-slate-100'">
                           <div class="flex items-center space-x-2">
                             <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">
@@ -283,7 +283,7 @@ import * as L from 'leaflet';
             <h3 class="font-bold text-base text-slate-800 mb-1">สแกนรับใบงานไรเดอร์</h3>
             <p class="text-xs text-slate-500 mb-4">{{ activeQr()!.taskNumber }}</p>
             <div class="bg-white p-3 border border-slate-200 rounded-xl inline-block mb-4 shadow-sm">
-              <img [src]="activeQr()!.qrDataUrl" alt="Task QR Code" class="w-56 h-56 mx-auto object-contain" />
+              <img [src]="activeQr()!.qrDataUrl" alt="Task QR Code" class="w-48 h-48 sm:w-56 sm:h-56 mx-auto object-contain" />
             </div>
             <p class="text-xs text-slate-400 mb-4">ไรเดอร์สามารถใช้กล้องมือถือสแกนเพื่อเปิดใบงานและเริ่มนำทางได้ทันที</p>
             <div class="flex gap-2">

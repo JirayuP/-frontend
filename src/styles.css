@@ -4,11 +4,254 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f8fafc;
+  background-color: #121212;
   margin: 0;
   padding: 0;
+}
+
+/* Delivery dark theme: technical, high-contrast and shared by every role. */
+.delivery-theme {
+  color-scheme: dark;
+  min-height: 100dvh;
+  background: #121212 !important;
+  color: #ffffff !important;
+}
+
+.delivery-theme > header {
+  background-color: rgba(18, 18, 18, 0.94) !important;
+  background-image: none !important;
+  border-bottom: 1px solid #2c2c2e !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+  backdrop-filter: blur(14px);
+}
+
+.delivery-theme .bg-white,
+.delivery-theme .bg-slate-800,
+.delivery-theme [class*="bg-slate-800/"],
+.delivery-theme [class*="bg-white/"] {
+  background-color: #1e1e1e !important;
+}
+
+.delivery-theme .bg-slate-50,
+.delivery-theme .bg-slate-100,
+.delivery-theme .bg-slate-900,
+.delivery-theme [class*="bg-slate-50/"],
+.delivery-theme [class*="bg-slate-900/"] {
+  background-color: #181818 !important;
+}
+
+.delivery-theme .border-slate-100,
+.delivery-theme .border-slate-200,
+.delivery-theme .border-slate-700,
+.delivery-theme [class*="border-slate-700/"] {
+  border-color: #2c2c2e !important;
+}
+
+.delivery-theme .text-slate-800,
+.delivery-theme .text-slate-700,
+.delivery-theme .text-slate-600,
+.delivery-theme .text-slate-300,
+.delivery-theme .text-white {
+  color: #ffffff !important;
+}
+
+.delivery-theme .text-slate-500,
+.delivery-theme .text-slate-400,
+.delivery-theme .text-slate-600,
+.delivery-theme .text-slate-300 {
+  color: #98989d !important;
+}
+
+.delivery-theme input,
+.delivery-theme textarea,
+.delivery-theme select {
+  color: #ffffff;
+  background-color: #181818 !important;
+  border-color: #3a3a3c !important;
+}
+
+.delivery-theme input::placeholder,
+.delivery-theme textarea::placeholder {
+  color: #6e6e73;
+}
+
+.delivery-theme input:focus,
+.delivery-theme textarea:focus,
+.delivery-theme select:focus {
+  border-color: #00e5ff !important;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.14);
+  outline: none;
+}
+
+/* Cyan replaces the previous orange brand accents. */
+.delivery-theme .bg-orange-500,
+.delivery-theme .bg-orange-600,
+.delivery-theme .bg-blue-600,
+.delivery-theme [class*="from-orange-"],
+.delivery-theme [class*="from-amber-"],
+.delivery-theme [class*="from-blue-"],
+.delivery-theme [class*="from-indigo-"] {
+  color: #071416 !important;
+  background-color: #00e5ff !important;
+  background-image: none !important;
+}
+
+.delivery-theme .hover\:bg-orange-600:hover,
+.delivery-theme .hover\:bg-blue-500:hover,
+.delivery-theme [class*="hover:from-orange-"]:hover,
+.delivery-theme [class*="hover:to-amber-"]:hover,
+.delivery-theme [class*="hover:from-blue-"]:hover,
+.delivery-theme [class*="hover:to-indigo-"]:hover {
+  background-color: #35ecff !important;
+  background-image: none !important;
+}
+
+.delivery-theme .text-orange-600,
+.delivery-theme .text-orange-700,
+.delivery-theme .text-orange-400,
+.delivery-theme .text-blue-600,
+.delivery-theme .text-blue-700,
+.delivery-theme .text-blue-800,
+.delivery-theme .text-amber-200,
+.delivery-theme .text-amber-300,
+.delivery-theme .text-amber-100 {
+  color: #00e5ff !important;
+}
+
+.delivery-theme .bg-orange-50,
+.delivery-theme .bg-orange-100,
+.delivery-theme .bg-blue-50,
+.delivery-theme .bg-blue-100,
+.delivery-theme .bg-amber-50,
+.delivery-theme .bg-amber-100,
+.delivery-theme [class*="bg-amber-500/"] {
+  background-color: rgba(0, 229, 255, 0.1) !important;
+}
+
+.delivery-theme .border-orange-300,
+.delivery-theme .border-orange-500,
+.delivery-theme .border-blue-100,
+.delivery-theme [class*="border-amber-500/"] {
+  border-color: #00e5ff !important;
+}
+
+.delivery-theme .hover\:border-orange-300:hover,
+.delivery-theme .hover\:border-orange-500:hover,
+.delivery-theme .focus\:border-orange-500:focus {
+  border-color: #00e5ff !important;
+}
+
+/* Keep positive and error semantics, but remove bright pastel surfaces. */
+.delivery-theme .bg-emerald-50,
+.delivery-theme [class*="bg-emerald-50/"],
+.delivery-theme [class*="bg-emerald-950/"] {
+  background-color: rgba(50, 215, 75, 0.1) !important;
+}
+
+.delivery-theme .text-emerald-600,
+.delivery-theme .text-emerald-700,
+.delivery-theme .text-emerald-800,
+.delivery-theme .text-emerald-300,
+.delivery-theme .text-emerald-200,
+.delivery-theme .text-emerald-100,
+.delivery-theme .text-emerald-400 {
+  color: #32d74b !important;
+}
+
+.delivery-theme .border-emerald-100,
+.delivery-theme .border-emerald-200,
+.delivery-theme [class*="border-emerald-"] {
+  border-color: rgba(50, 215, 75, 0.42) !important;
+}
+
+.delivery-theme .bg-red-50,
+.delivery-theme .bg-red-100,
+.delivery-theme [class*="bg-red-950/"] {
+  background-color: #3a1c1c !important;
+  border-left-width: 4px !important;
+}
+
+.delivery-theme .text-red-600,
+.delivery-theme .text-red-700,
+.delivery-theme .text-red-800,
+.delivery-theme .text-red-900,
+.delivery-theme .text-red-200 {
+  color: #ff453a !important;
+}
+
+.delivery-theme .border-red-200,
+.delivery-theme .border-red-700 {
+  border-color: #ff453a !important;
+}
+
+.delivery-theme table tbody tr {
+  border-color: #2c2c2e !important;
+}
+
+.delivery-theme table tbody tr:hover {
+  background-color: #252525;
+}
+
+.delivery-theme article {
+  background-color: #181818 !important;
+  border-color: #2c2c2e !important;
+}
+
+.delivery-theme .shadow-sm,
+.delivery-theme .shadow,
+.delivery-theme .shadow-md,
+.delivery-theme .shadow-lg,
+.delivery-theme .shadow-xl,
+.delivery-theme .shadow-2xl {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* Leaflet itself stays legible while its frame follows the dark dashboard. */
+.delivery-theme .leaflet-container {
+  background: #181818;
+}
+
+.delivery-theme .leaflet-bar a,
+.delivery-theme .leaflet-control-attribution {
+  color: #d4d4d8;
+  background: rgba(30, 30, 30, 0.92);
+}
+
+.delivery-theme .leaflet-bar a {
+  border-color: #2c2c2e;
+}
+
+/* Page chrome must remain dark even when legacy header gradient classes exist. */
+.delivery-theme > header {
+  color: #ffffff !important;
+  background-color: rgba(18, 18, 18, 0.94) !important;
+  background-image: none !important;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+.mobile-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+@media (max-width: 640px) {
+  .leaflet-control-attribution {
+    max-width: 72vw;
+    font-size: 8px;
+    line-height: 1.2;
+  }
 }
 
 /* ปรับแต่ง Leaflet Map Marker ป้ายตัวเลข */

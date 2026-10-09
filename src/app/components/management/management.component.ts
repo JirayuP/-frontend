@@ -19,26 +19,28 @@ interface CustomerForm {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-slate-50 text-slate-800 pb-12">
-      <header class="bg-gradient-to-r from-slate-800 to-slate-700 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div>
-            <h1 class="font-bold">จัดการลูกค้าและออเดอร์</h1>
-            <p class="text-xs text-slate-300">รับเฉพาะที่อยู่ในรัศมี 3 กม. จากร้าน</p>
+    <div class="delivery-theme min-h-screen bg-slate-50 text-slate-800 pb-20 sm:pb-12">
+      <header class="bg-gradient-to-r from-slate-800 to-slate-700 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 min-h-16 py-2.5 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <h1 class="font-bold text-sm sm:text-base truncate">จัดการลูกค้าและออเดอร์</h1>
+            <p class="hidden sm:block text-xs text-slate-300">รับเฉพาะที่อยู่ในรัศมี 3 กม. จากร้าน</p>
           </div>
-          <a href="/" class="px-3 py-2 text-xs font-semibold bg-white/15 rounded-lg hover:bg-white/25">← กลับหน้าจัดเส้นทาง</a>
+          <a href="/" class="min-h-10 px-3 py-2 text-xs font-semibold bg-white/15 rounded-lg hover:bg-white/25 inline-flex items-center shrink-0">
+            ← <span class="hidden sm:inline ml-1">กลับหน้าจัดเส้นทาง</span><span class="sm:hidden ml-1">กลับ</span>
+          </a>
         </div>
       </header>
 
-      <main class="max-w-7xl mx-auto px-4 mt-6 space-y-6">
+      <main class="max-w-7xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
         @if (message()) {
           <div class="p-3 rounded-lg text-sm" [ngClass]="hasError() ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'">
             {{ message() }}
           </div>
         }
 
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <form (ngSubmit)="saveCustomer()" class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 space-y-3">
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <form (ngSubmit)="saveCustomer()" class="bg-white border border-slate-200 rounded-xl shadow-sm p-4 sm:p-5 space-y-3">
             <div class="flex items-center justify-between">
               <h2 class="font-bold">{{ editingCustomerId() ? 'แก้ไขลูกค้า' : 'เพิ่มลูกค้า' }}</h2>
               @if (editingCustomerId()) {
@@ -56,7 +58,7 @@ interface CustomerForm {
             <label class="text-xs text-slate-600 block">รายละเอียดที่อยู่
               <textarea [(ngModel)]="customerForm.addressDetail" name="addressDetail" required rows="2" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"></textarea>
             </label>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label class="text-xs text-slate-600">Latitude
                 <input [(ngModel)]="customerForm.latitude" name="latitude" required type="number" step="any" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm" />
               </label>
@@ -65,26 +67,26 @@ interface CustomerForm {
               </label>
             </div>
             <p class="text-xs text-slate-400">คลิกแผนที่เพื่อเลือกพิกัด โดยวงกลมสีส้มคือขอบเขตให้บริการ 3 กม.</p>
-            <button [disabled]="loading()" class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-bold disabled:opacity-50">
+            <button [disabled]="loading()" class="w-full min-h-11 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-bold disabled:opacity-50">
               {{ editingCustomerId() ? 'บันทึกการแก้ไข' : 'เพิ่มลูกค้า' }}
             </button>
           </form>
 
           <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
             <div class="px-4 py-3 border-b text-sm font-bold">เลือกตำแหน่งลูกค้า</div>
-            <div id="customer-map" class="h-[360px]"></div>
+            <div id="customer-map" class="h-[300px] sm:h-[360px]"></div>
           </div>
         </section>
 
-        <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-4 sm:p-5">
           <div class="flex flex-wrap items-end justify-between gap-4 mb-4">
             <div>
               <h2 class="font-bold">รายชื่อลูกค้า ({{ customers().length }})</h2>
               <p class="text-xs text-slate-500">แก้ไขข้อมูลหรือเลือกลูกค้าเพื่อสร้างออเดอร์</p>
             </div>
-            <form (ngSubmit)="createOrder()" class="flex flex-wrap items-end gap-2">
-              <label class="text-xs text-slate-600">ลูกค้า
-                <select [(ngModel)]="newOrderCustomerId" name="customerId" required class="mt-1 block border rounded-lg px-3 py-2 text-sm min-w-48">
+            <form (ngSubmit)="createOrder()" class="w-full lg:w-auto grid grid-cols-2 sm:flex sm:flex-wrap items-end gap-2">
+              <label class="col-span-2 sm:col-span-1 text-xs text-slate-600">ลูกค้า
+                <select [(ngModel)]="newOrderCustomerId" name="customerId" required class="mt-1 block w-full sm:w-auto border rounded-lg px-3 py-2.5 text-sm sm:min-w-48">
                   <option [ngValue]="0" disabled>เลือกลูกค้า</option>
                   @for (customer of customers(); track customer.id) {
                     <option [ngValue]="customer.id">{{ customer.name }}</option>
@@ -92,14 +94,36 @@ interface CustomerForm {
                 </select>
               </label>
               <label class="text-xs text-slate-600">จำนวนกล่อง
-                <select [(ngModel)]="newOrderBoxes" name="boxes" class="mt-1 block border rounded-lg px-3 py-2 text-sm">
+                <select [(ngModel)]="newOrderBoxes" name="boxes" class="mt-1 block w-full border rounded-lg px-3 py-2.5 text-sm">
                   <option [ngValue]="1">1</option><option [ngValue]="2">2</option><option [ngValue]="3">3</option>
                 </select>
               </label>
-              <button [disabled]="loading() || !newOrderCustomerId" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold disabled:opacity-50">สร้างออเดอร์</button>
+              <button [disabled]="loading() || !newOrderCustomerId" class="min-h-11 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold disabled:opacity-50">สร้างออเดอร์</button>
             </form>
           </div>
-          <div class="overflow-x-auto">
+
+          <div class="md:hidden space-y-3">
+            @for (customer of customers(); track customer.id) {
+              <article class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <h3 class="font-semibold text-sm break-words">{{ customer.name }}</h3>
+                    <a [href]="'tel:' + customer.phone" class="mt-1 block text-sm text-blue-600">{{ customer.phone }}</a>
+                  </div>
+                  <span class="shrink-0 text-xs px-2 py-1 rounded-full bg-white border border-slate-200">{{ customer._count?.orders ?? 0 }} ออเดอร์</span>
+                </div>
+                <p class="mt-2 text-xs text-slate-500 break-words">{{ customer.addressDetail }}</p>
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                  <button (click)="editCustomer(customer)" class="min-h-11 text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg text-sm font-semibold">แก้ไข</button>
+                  <button (click)="deleteCustomer(customer)" class="min-h-11 text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg text-sm font-semibold">ลบ</button>
+                </div>
+              </article>
+            } @empty {
+              <div class="text-center text-slate-400 py-8 text-sm">ยังไม่มีข้อมูลลูกค้า</div>
+            }
+          </div>
+
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead class="text-xs text-slate-500 border-b"><tr><th class="text-left py-2">ลูกค้า</th><th class="text-left">ติดต่อ/ที่อยู่</th><th>ออเดอร์</th><th class="text-right">จัดการ</th></tr></thead>
               <tbody>
@@ -121,9 +145,42 @@ interface CustomerForm {
           </div>
         </section>
 
-        <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-4 sm:p-5">
           <h2 class="font-bold mb-4">ออเดอร์ทั้งหมด ({{ orders().length }})</h2>
-          <div class="overflow-x-auto">
+
+          <div class="md:hidden space-y-3">
+            @for (order of orders(); track order.id) {
+              <article class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <span class="text-xs text-slate-400">ออเดอร์ #{{ order.id }}</span>
+                    <h3 class="font-semibold text-sm break-words">{{ order.customer.name }}</h3>
+                  </div>
+                  <span class="shrink-0 text-[11px] px-2 py-1 rounded-full bg-white border border-slate-200">{{ order.status }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+                  <label class="text-xs text-slate-500">จำนวนกล่อง
+                    @if (order.status === 'PENDING') {
+                      <select [ngModel]="order.boxAmount" (ngModelChange)="updateOrderBoxes(order, $event)" [ngModelOptions]="{standalone: true}" class="mt-1 block w-full min-h-10 border rounded-lg px-2 py-1 bg-white text-sm text-slate-800">
+                        <option [ngValue]="1">1</option><option [ngValue]="2">2</option><option [ngValue]="3">3</option>
+                      </select>
+                    } @else {
+                      <span class="mt-2 block font-semibold text-slate-800">{{ order.boxAmount }}</span>
+                    }
+                  </label>
+                  <div class="text-right">
+                    <span class="block text-xs text-slate-500">ยอดรวม</span>
+                    <span class="mt-2 block font-bold text-slate-800">{{ order.totalPrice }} บาท</span>
+                  </div>
+                </div>
+                <button (click)="deleteOrder(order)" [disabled]="order.status !== 'PENDING'" class="mt-3 w-full min-h-11 text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg text-sm font-semibold disabled:text-slate-400 disabled:bg-slate-100">ลบออเดอร์</button>
+              </article>
+            } @empty {
+              <div class="text-center text-slate-400 py-8 text-sm">ยังไม่มีออเดอร์</div>
+            }
+          </div>
+
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead class="text-xs text-slate-500 border-b"><tr><th class="text-left py-2">#</th><th class="text-left">ลูกค้า</th><th>จำนวน</th><th>ยอด</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead>
               <tbody>

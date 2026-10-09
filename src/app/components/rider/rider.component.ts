@@ -11,42 +11,42 @@ import { Html5Qrcode } from 'html5-qrcode';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between">
+    <div class="delivery-theme min-h-[100dvh] bg-slate-900 text-slate-100 flex flex-col justify-between mobile-safe-bottom">
       <!-- Mobile Top Bar -->
-      <header class="bg-slate-800 border-b border-slate-700 px-4 py-3.5 sticky top-0 z-20 flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <span class="text-xl">🛵</span>
-          <div>
-            <h1 class="font-bold text-sm leading-tight text-white">ระบบใบงานไรเดอร์ (ส่งด่วนมื้อเที่ยง)</h1>
-            <p class="text-[10px] text-slate-400">ร้านข้าวกล่องเดลิเวอรี ม.มหาสารคาม</p>
+      <header class="bg-slate-800 border-b border-slate-700 px-3 sm:px-4 py-2.5 sm:py-3.5 sticky top-0 z-20 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-xl shrink-0">🛵</span>
+          <div class="min-w-0">
+            <h1 class="font-bold text-sm leading-tight text-white truncate">ระบบใบงานไรเดอร์ (ส่งด่วนมื้อเที่ยง)</h1>
+            <p class="hidden sm:block text-[10px] text-slate-400">ร้านข้าวกล่องเดลิเวอรี ม.มหาสารคาม</p>
           </div>
         </div>
-        <a routerLink="/" class="text-xs text-orange-400 font-medium hover:underline">
-          หน้าจัดงาน ↗
+        <a routerLink="/" class="min-h-10 px-2 inline-flex items-center text-xs text-orange-400 font-medium hover:underline shrink-0">
+          <span class="hidden sm:inline">หน้าจัดงาน ↗</span><span class="sm:hidden">จัดงาน ↗</span>
         </a>
       </header>
 
       <!-- Main Container (Mobile Max Width) -->
-      <main class="flex-1 max-w-md w-full mx-auto p-4 space-y-4">
+      <main class="flex-1 max-w-md w-full mx-auto p-3 sm:p-4 space-y-4">
         <!-- Search / Task Number Input & QR Scanner Button -->
         <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700 shadow-lg">
           <label class="block text-xs text-slate-400 font-medium mb-1.5">ค้นหาหรือสแกนรหัสใบงาน</label>
-          <div class="flex gap-2">
+          <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
             <input 
               type="text" 
               [(ngModel)]="searchTaskNumber" 
               (keyup.enter)="loadTask(searchTaskNumber)"
               placeholder="เช่น TASK-20261008-01"
-              class="flex-1 min-w-0 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500 uppercase font-mono"
+              class="min-w-0 min-h-11 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500 uppercase font-mono"
             />
             <button 
               (click)="loadTask(searchTaskNumber)"
-              class="px-3.5 py-2 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition whitespace-nowrap">
+              class="min-h-11 px-3.5 py-2 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition whitespace-nowrap">
               ค้นหา
             </button>
             <button 
               (click)="openQrScanner()"
-              class="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 whitespace-nowrap">
+              class="col-span-2 min-h-11 px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition flex items-center justify-center gap-1.5 whitespace-nowrap">
               <span>📷</span> สแกน QR
             </button>
           </div>
@@ -57,8 +57,8 @@ import { Html5Qrcode } from 'html5-qrcode';
           <button
             type="button"
             (click)="showMyTasks.set(!showMyTasks())"
-            class="w-full p-3.5 flex items-center justify-between text-left">
-            <span>
+            class="w-full min-h-11 p-3.5 flex items-center justify-between gap-3 text-left">
+            <span class="min-w-0">
               <span class="text-sm font-bold text-white block">📦 งานของฉัน</span>
               <span class="text-[11px] text-slate-400">เปิดงานที่ค้างอยู่และดูประวัติการส่ง</span>
             </span>
@@ -67,19 +67,19 @@ import { Html5Qrcode } from 'html5-qrcode';
 
           @if (showMyTasks()) {
             <div class="border-t border-slate-700 p-3.5 space-y-3">
-              <div class="flex gap-2">
+              <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
                 <input
                   type="tel"
                   [(ngModel)]="riderLookupPhone"
                   (keyup.enter)="loadMyTasks()"
                   placeholder="เบอร์โทรที่ใช้รับงาน"
-                  class="flex-1 min-w-0 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500"
+                  class="min-w-0 min-h-11 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500"
                 />
                 <button
                   type="button"
                   (click)="loadMyTasks()"
                   [disabled]="tasksLoading()"
-                  class="px-4 py-2 bg-orange-500 text-white text-xs font-bold rounded-xl disabled:opacity-50">
+                  class="min-h-11 px-3 sm:px-4 py-2 bg-orange-500 text-white text-xs font-bold rounded-xl disabled:opacity-50 whitespace-nowrap">
                   {{ tasksLoading() ? 'กำลังโหลด' : 'ค้นหางาน' }}
                 </button>
               </div>
@@ -131,17 +131,17 @@ import { Html5Qrcode } from 'html5-qrcode';
 
         @if (task()) {
           <!-- Task Header Summary Card -->
-          <div class="bg-gradient-to-br from-orange-600 to-amber-600 rounded-2xl p-5 shadow-xl text-white">
-            <div class="flex justify-between items-start mb-2">
+          <div class="bg-gradient-to-br from-orange-600 to-amber-600 rounded-2xl p-4 sm:p-5 shadow-xl text-white">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-2">
               <div>
                 <span class="text-xs font-semibold px-2.5 py-0.5 bg-black/20 rounded-full">
                   {{ task()!.taskNumber }}
                 </span>
-                <h2 class="text-2xl font-black mt-2">
+                <h2 class="text-xl sm:text-2xl font-black mt-2">
                   หยิบรวม {{ task()!.totalBoxes }} กล่อง
                 </h2>
               </div>
-              <div class="text-right">
+              <div class="text-left sm:text-right">
                 <span class="text-xs opacity-80 block">ค่าจ้างรอบนี้</span>
                 <span class="text-2xl font-black text-amber-200">{{ task()!.deliveryFee }} ฿</span>
               </div>
@@ -184,9 +184,9 @@ import { Html5Qrcode } from 'html5-qrcode';
                 </button>
               </div>
             } @else {
-              <div class="mt-3 pt-2 border-t border-white/20 text-xs text-amber-100 flex items-center justify-between">
-                <span>ไรเดอร์: {{ task()!.rider!.name }} ({{ task()!.rider!.phone }})</span>
-                <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded font-semibold text-emerald-300">✓ รับงานแล้ว</span>
+              <div class="mt-3 pt-2 border-t border-white/20 text-xs text-amber-100 flex flex-wrap items-center justify-between gap-2">
+                <span class="break-all">ไรเดอร์: {{ task()!.rider!.name }} ({{ task()!.rider!.phone }})</span>
+                <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded font-semibold text-emerald-300 shrink-0">✓ รับงานแล้ว</span>
               </div>
             }
           </div>
@@ -194,7 +194,7 @@ import { Html5Qrcode } from 'html5-qrcode';
           <!-- Step-by-Step Delivery Stops Timeline: แสดงเฉพาะเมื่อคนขับลงชื่อแล้วเท่านั้น -->
           @if (task()!.rider) {
             <div class="space-y-3 animate-in fade-in duration-200">
-              <div class="flex items-center justify-between px-1">
+              <div class="flex flex-wrap items-center justify-between gap-2 px-1">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">
                   ลำดับการจัดส่ง (เรียงตามเส้นทางที่สั้นที่สุด)
                 </h3>
@@ -205,18 +205,18 @@ import { Html5Qrcode } from 'html5-qrcode';
 
               @for (stop of task()!.stops; track stop.itemId) {
                 <div 
-                  class="rounded-2xl border p-4 transition shadow-md"
+                  class="rounded-2xl border p-3.5 sm:p-4 transition shadow-md"
                   [ngClass]="stop.deliveryStatus === 'DELIVERED' ? 'bg-slate-800/50 border-emerald-500/40 opacity-75' : 'bg-slate-800 border-slate-700'">
                   
-                  <div class="flex items-start justify-between mb-2">
-                    <div class="flex items-center space-x-2.5">
+                  <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2.5 min-w-0">
                       <span 
                         class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shadow"
                         [ngClass]="stop.deliveryStatus === 'DELIVERED' ? 'bg-emerald-500 text-white' : 'bg-orange-500 text-white'">
                         {{ stop.deliveryStatus === 'DELIVERED' ? '✓' : stop.stopSequence }}
                       </span>
-                      <div>
-                        <h4 class="font-bold text-sm text-white">{{ stop.customerName }}</h4>
+                      <div class="min-w-0">
+                        <h4 class="font-bold text-sm text-white break-words">{{ stop.customerName }}</h4>
                         <span class="text-xs text-orange-400 font-semibold">{{ stop.boxAmount }} กล่อง</span>
                         @if (isNextPendingStop(stop.itemId)) {
                           <span class="ml-2 text-[10px] text-amber-300 font-bold">← จุดถัดไป</span>
@@ -224,7 +224,7 @@ import { Html5Qrcode } from 'html5-qrcode';
                       </div>
                     </div>
                     
-                    <span class="text-xs font-medium text-slate-400">
+                    <span class="text-xs font-medium text-slate-400 sm:text-right">
                       🕒 ถึงเวลา {{ stop.estArrival }} น.
                     </span>
                   </div>
@@ -237,13 +237,13 @@ import { Html5Qrcode } from 'html5-qrcode';
                   <div class="grid grid-cols-2 gap-2 mb-2">
                     <a 
                       [href]="'tel:' + stop.customerPhone"
-                      class="py-2.5 px-3 bg-slate-700 hover:bg-slate-600 active:scale-95 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
+                      class="min-h-11 py-2.5 px-2 sm:px-3 bg-slate-700 hover:bg-slate-600 active:scale-95 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
                       <span>📞</span> โทรหาลูกค้า
                     </a>
                     <a 
                       [href]="stop.navigationUrl" 
                       target="_blank"
-                      class="py-2.5 px-3 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
+                      class="min-h-11 py-2.5 px-2 sm:px-3 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
                       <span>🗺️</span> นำทาง Maps
                     </a>
                   </div>
@@ -252,7 +252,7 @@ import { Html5Qrcode } from 'html5-qrcode';
                     <button 
                       (click)="confirmDelivery(stop.itemId)"
                       [disabled]="!isNextPendingStop(stop.itemId) || updatingStopId() === stop.itemId"
-                      class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-lg transition disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-400 disabled:shadow-none">
+                      class="w-full min-h-11 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-lg transition disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-400 disabled:shadow-none">
                       {{ updatingStopId() === stop.itemId ? 'กำลังบันทึก...' : isNextPendingStop(stop.itemId) ? '✓ ยืนยันส่งมอบจุดนี้สำเร็จ' : 'ส่งจุดก่อนหน้าให้เสร็จก่อน' }}
                     </button>
                   } @else {
@@ -306,7 +306,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 
       <!-- Rider Check-in Modal -->
       @if (showCheckinModal()) {
-        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 99999;">
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" style="z-index: 99999;">
           <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 max-w-xs w-full shadow-2xl">
             <h3 class="font-bold text-base text-white mb-1">ลงชื่อรับใบงาน</h3>
             <p class="text-xs text-slate-400 mb-4">{{ task()!.taskNumber }}</p>
@@ -350,8 +350,8 @@ import { Html5Qrcode } from 'html5-qrcode';
 
       <!-- QR Scanner Modal -->
       @if (showScannerModal()) {
-        <div class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200" style="z-index: 99999;">
-          <div class="bg-slate-800 border border-slate-700 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4">
+        <div class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 overflow-y-auto" style="z-index: 99999;">
+          <div class="bg-slate-800 border border-slate-700 rounded-3xl p-4 sm:p-5 max-w-sm w-full max-h-[calc(100dvh-1.5rem)] overflow-y-auto shadow-2xl space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-700/60">
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📷</span>
