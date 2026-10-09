@@ -8,7 +8,7 @@ import { Order, OptimizationResult, ProposedTask, RiderTaskDetail } from '../mod
 })
 export class DeliveryApiService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'https://adventurous-caring-production-d78e.up.railway.app/api';
 
   // 1. Orders
   getOrders(): Observable<Order[]> {
