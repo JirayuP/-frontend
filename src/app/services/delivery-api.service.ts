@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Order, OptimizationResult, ProposedTask, RiderTaskDetail } from '../models/delivery.models.js';
+import { ConfirmTasksResponse, Order, OptimizationResult, ProposedTask, RiderTaskDetail } from '../models/delivery.models.js';
 
 @Injectable({
   providedIn: 'root'
@@ -100,8 +100,8 @@ export class DeliveryApiService {
     return this.http.post<OptimizationResult>(`${this.apiUrl}/routes/optimize`, {});
   }
 
-  confirmTasks(tasks: ProposedTask[]): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/routes/confirm`, { tasks });
+  confirmTasks(tasks: ProposedTask[]): Observable<ConfirmTasksResponse> {
+    return this.http.post<ConfirmTasksResponse>(`${this.apiUrl}/routes/confirm`, { tasks });
   }
 
   // 3. Rider & Tasks

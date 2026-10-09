@@ -145,7 +145,7 @@ import * as L from 'leaflet';
                 </div>
                 <button 
                   (click)="confirmDispatch()" 
-                  [disabled]="isConfirmed()"
+                  [disabled]="isConfirmed() || loading()"
                   class="px-4 py-2 bg-white text-emerald-800 hover:bg-emerald-50 text-xs font-bold rounded-lg shadow transition disabled:opacity-50">
                   {{ isConfirmed() ? '✓ ปล่อยงานแล้ว' : '🚀 ยืนยันปล่อยงาน' }}
                 </button>
@@ -341,15 +341,25 @@ export class DispatcherComponent implements OnInit, OnDestroy {
 
   confirmDispatch() {
     const data = this.optimizationData();
-    if (!data) return;
+    if (!data || this.loading()) return;
 
+    this.loading.set(true);
     this.api.confirmTasks(data.tasks).subscribe({
-      next: () => {
+      next: (response) => {
+        // Confirmation is authoritative: the server recalculates values and
+        // may allocate different task numbers after a concurrent dispatch.
+        this.optimizationData.update((current) =>
+          current ? { ...current, tasks: response.tasks } : null
+        );
         this.isConfirmed.set(true);
+        this.loading.set(false);
         alert('ยืนยันและปล่อยงานให้ไรเดอร์เรียบร้อย!');
         this.loadOrders();
       },
-      error: (err) => alert(err.error?.error || 'ไม่สามารถยืนยันได้')
+      error: (err) => {
+        this.loading.set(false);
+        alert(err.error?.error || 'ไม่สามารถยืนยันได้');
+      }
     });
   }
 

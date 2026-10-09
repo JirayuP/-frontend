@@ -76,6 +76,11 @@ export interface OptimizationResult {
   tasks: ProposedTask[];
 }
 
+export interface ConfirmTasksResponse {
+  message: string;
+  tasks: ProposedTask[];
+}
+
 export interface RiderTaskDetail {
   id: number;
   taskNumber: string;
