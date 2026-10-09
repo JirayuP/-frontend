@@ -8,7 +8,13 @@ import { Order, OptimizationResult, ProposedTask, RiderTaskDetail } from '../mod
 })
 export class DeliveryApiService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://adventurous-caring-production-d78e.up.railway.app/api';
+
+  // สลับ URL อัตโนมัติ: เชื่อมต่อ Localhost (พอร์ต 3000) เมื่อรันบนเครื่อง และใช้ Railway เมื่อ Deploy บน Cloud
+  private apiUrl =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:3000/api'
+      : 'https://adventurous-caring-production-d78e.up.railway.app/api';
 
   // 1. Orders
   getOrders(): Observable<Order[]> {

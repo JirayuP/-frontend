@@ -29,6 +29,25 @@ import * as L from 'leaflet';
       </header>
 
       <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <!-- Error Banner หาก Backend หรือ Database มีปัญหา -->
+        @if (apiError()) {
+          <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl shadow-sm flex items-start gap-3">
+            <span class="text-2xl">⚠️</span>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm text-red-900">เกิดข้อผิดพลาดในการเชื่อมต่อ Database ของ Backend</h3>
+              <p class="text-xs text-red-700 mt-1">
+                Backend ส่ง Error กลับมา: <span class="font-mono bg-red-100 px-1 py-0.5 rounded">{{ apiError() }}</span>
+              </p>
+              <p class="text-xs text-red-600 mt-1">
+                💡 คำแนะนำ: หาก Deploy บน Railway กรุณาไปที่แท็บ <strong>Variables</strong> แล้วเพิ่ม <code>DATABASE_URL</code> ของ MySQL
+              </p>
+            </div>
+            <button (click)="loadOrders()" class="text-xs px-3 py-1.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
+              ลองใหม่
+            </button>
+          </div>
+        }
+
         <!-- Action Toolbar -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center space-x-3">
@@ -235,6 +254,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
   loading = signal<boolean>(false);
   isConfirmed = signal<boolean>(false);
   activeQr = signal<{ taskNumber: string; qrDataUrl: string } | null>(null);
+  apiError = signal<string | null>(null);
 
   private map: L.Map | null = null;
   private routeLayers: L.LayerGroup = L.layerGroup();
@@ -256,8 +276,15 @@ export class DispatcherComponent implements OnInit, OnDestroy {
 
   loadOrders() {
     this.api.getOrders().subscribe({
-      next: (data) => this.orders.set(data),
-      error: (err) => console.error(err)
+      next: (data) => {
+        this.orders.set(data);
+        this.apiError.set(null);
+      },
+      error: (err) => {
+        console.error('Error loading orders:', err);
+        const errMsg = err.error?.error || err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ Backend ได้';
+        this.apiError.set(errMsg);
+      }
     });
   }
 
@@ -270,16 +297,28 @@ export class DispatcherComponent implements OnInit, OnDestroy {
         this.optimizationData.set(null);
         this.loadOrders();
       },
-      error: () => this.loading.set(false)
+      error: (err) => {
+        this.loading.set(false);
+        const errMsg = err.error?.error || err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
+        alert(`เกิดข้อผิดพลาดในการจำลองออเดอร์: ${errMsg}`);
+      }
     });
   }
 
   clearAll() {
     if (confirm('คุณต้องการล้างข้อมูลออเดอร์และใบงานทั้งหมดหรือไม่?')) {
-      this.api.clearOrders().subscribe(() => {
-        this.orders.set([]);
-        this.optimizationData.set(null);
-        this.routeLayers.clearLayers();
+      this.loading.set(true);
+      this.api.clearOrders().subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.orders.set([]);
+          this.optimizationData.set(null);
+          this.routeLayers.clearLayers();
+        },
+        error: (err) => {
+          this.loading.set(false);
+          alert(`เกิดข้อผิดพลาดในการล้างข้อมูล: ${err.error?.error || err.message}`);
+        }
       });
     }
   }
