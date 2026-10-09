@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { DeliveryApiService } from '../../services/delivery-api.service.js';
-import { RiderTaskDetail } from '../../models/delivery.models.js';
+import { RiderTaskDetail, RiderTaskSummary } from '../../models/delivery.models.js';
 import { Html5Qrcode } from 'html5-qrcode';
 
 @Component({
@@ -52,6 +52,83 @@ import { Html5Qrcode } from 'html5-qrcode';
           </div>
         </div>
 
+        <!-- Rider order management: reopen active jobs and review history -->
+        <div class="bg-slate-800 rounded-2xl border border-slate-700 shadow-lg overflow-hidden">
+          <button
+            type="button"
+            (click)="showMyTasks.set(!showMyTasks())"
+            class="w-full p-3.5 flex items-center justify-between text-left">
+            <span>
+              <span class="text-sm font-bold text-white block">📦 งานของฉัน</span>
+              <span class="text-[11px] text-slate-400">เปิดงานที่ค้างอยู่และดูประวัติการส่ง</span>
+            </span>
+            <span class="text-orange-400 text-xs">{{ showMyTasks() ? '▲ ปิด' : '▼ เปิด' }}</span>
+          </button>
+
+          @if (showMyTasks()) {
+            <div class="border-t border-slate-700 p-3.5 space-y-3">
+              <div class="flex gap-2">
+                <input
+                  type="tel"
+                  [(ngModel)]="riderLookupPhone"
+                  (keyup.enter)="loadMyTasks()"
+                  placeholder="เบอร์โทรที่ใช้รับงาน"
+                  class="flex-1 min-w-0 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500"
+                />
+                <button
+                  type="button"
+                  (click)="loadMyTasks()"
+                  [disabled]="tasksLoading()"
+                  class="px-4 py-2 bg-orange-500 text-white text-xs font-bold rounded-xl disabled:opacity-50">
+                  {{ tasksLoading() ? 'กำลังโหลด' : 'ค้นหางาน' }}
+                </button>
+              </div>
+
+              @if (riderProfileName()) {
+                <div class="text-xs text-slate-300">ไรเดอร์: <strong class="text-white">{{ riderProfileName() }}</strong></div>
+              }
+
+              <div class="space-y-2 max-h-72 overflow-y-auto">
+                @for (job of riderTasks(); track job.id) {
+                  <button
+                    type="button"
+                    (click)="openTask(job.taskNumber)"
+                    class="w-full bg-slate-900/70 border border-slate-700 rounded-xl p-3 text-left hover:border-orange-500 transition">
+                    <div class="flex items-start justify-between gap-2">
+                      <div>
+                        <span class="font-mono text-xs font-bold text-white">{{ job.taskNumber }}</span>
+                        <span class="text-[11px] text-slate-400 block mt-1">{{ job.totalBoxes }} กล่อง · {{ job.totalDistance }} กม. · {{ job.deliveryFee }} ฿</span>
+                      </div>
+                      <span class="text-[10px] font-bold px-2 py-1 rounded-full" [ngClass]="taskStatusClass(job.status)">
+                        {{ taskStatusLabel(job.status) }}
+                      </span>
+                    </div>
+                    <div class="mt-2 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                      <div class="h-full bg-emerald-500" [style.width.%]="progressPercent(job.deliveredStops, job.totalStops)"></div>
+                    </div>
+                    <div class="flex justify-between mt-1 text-[10px] text-slate-400">
+                      <span>ส่งแล้ว {{ job.deliveredStops }}/{{ job.totalStops }} จุด</span>
+                      <span>{{ job.remainingStops > 0 ? 'เหลือ ' + job.remainingStops + ' จุด' : 'เสร็จครบแล้ว' }}</span>
+                    </div>
+                  </button>
+                } @empty {
+                  @if (hasLoadedMyTasks()) {
+                    <div class="py-5 text-center text-xs text-slate-500">ไม่พบใบงานของเบอร์นี้</div>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (notice()) {
+          <div class="rounded-xl border p-3 text-xs flex items-start justify-between gap-3"
+               [ngClass]="notice()!.type === 'success' ? 'bg-emerald-950/50 border-emerald-700 text-emerald-200' : 'bg-red-950/50 border-red-700 text-red-200'">
+            <span>{{ notice()!.message }}</span>
+            <button type="button" (click)="notice.set(null)" class="font-bold opacity-70">✕</button>
+          </div>
+        }
+
         @if (task()) {
           <!-- Task Header Summary Card -->
           <div class="bg-gradient-to-br from-orange-600 to-amber-600 rounded-2xl p-5 shadow-xl text-white">
@@ -85,6 +162,18 @@ import { Html5Qrcode } from 'html5-qrcode';
               </div>
             </div>
 
+            @if (task()!.rider) {
+              <div class="mt-3 pt-3 border-t border-white/20">
+                <div class="flex justify-between text-[11px] mb-1.5">
+                  <span>ความคืบหน้า {{ deliveredStops() }}/{{ task()!.stops.length }} จุด</span>
+                  <span>เหลือ {{ remainingStops() }} จุด</span>
+                </div>
+                <div class="h-2 bg-black/20 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-300 transition-all" [style.width.%]="progressPercent(deliveredStops(), task()!.stops.length)"></div>
+                </div>
+              </div>
+            }
+
             <!-- Rider Check-in Status -->
             @if (!task()!.rider) {
               <div class="mt-4 pt-3 border-t border-white/20">
@@ -110,7 +199,7 @@ import { Html5Qrcode } from 'html5-qrcode';
                   ลำดับการจัดส่ง (เรียงตามเส้นทางที่สั้นที่สุด)
                 </h3>
                 <span class="text-[10px] text-emerald-400 font-semibold px-2 py-0.5 bg-emerald-950/60 border border-emerald-800/40 rounded-full">
-                  กำลังปฏิบัติงาน
+                  {{ task()!.status === 'DELIVERED' ? 'ส่งครบแล้ว' : 'กำลังปฏิบัติงาน' }}
                 </span>
               </div>
 
@@ -129,6 +218,9 @@ import { Html5Qrcode } from 'html5-qrcode';
                       <div>
                         <h4 class="font-bold text-sm text-white">{{ stop.customerName }}</h4>
                         <span class="text-xs text-orange-400 font-semibold">{{ stop.boxAmount }} กล่อง</span>
+                        @if (isNextPendingStop(stop.itemId)) {
+                          <span class="ml-2 text-[10px] text-amber-300 font-bold">← จุดถัดไป</span>
+                        }
                       </div>
                     </div>
                     
@@ -159,8 +251,9 @@ import { Html5Qrcode } from 'html5-qrcode';
                   @if (stop.deliveryStatus !== 'DELIVERED') {
                     <button 
                       (click)="confirmDelivery(stop.itemId)"
-                      class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-lg transition">
-                      ✓ กดยืนยันส่งมอบจุดนี้สำเร็จ
+                      [disabled]="!isNextPendingStop(stop.itemId) || updatingStopId() === stop.itemId"
+                      class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-lg transition disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-400 disabled:shadow-none">
+                      {{ updatingStopId() === stop.itemId ? 'กำลังบันทึก...' : isNextPendingStop(stop.itemId) ? '✓ ยืนยันส่งมอบจุดนี้สำเร็จ' : 'ส่งจุดก่อนหน้าให้เสร็จก่อน' }}
                     </button>
                   } @else {
                     <div class="text-center py-1.5 text-xs text-emerald-400 font-bold bg-emerald-950/40 rounded-xl border border-emerald-800/40">
@@ -327,6 +420,16 @@ export class RiderComponent implements OnInit, OnDestroy {
   task = signal<RiderTaskDetail | null>(null);
   loading = signal<boolean>(false);
   showCheckinModal = signal<boolean>(false);
+  updatingStopId = signal<number | null>(null);
+
+  // Rider order management state
+  showMyTasks = signal<boolean>(false);
+  tasksLoading = signal<boolean>(false);
+  hasLoadedMyTasks = signal<boolean>(false);
+  riderTasks = signal<RiderTaskSummary[]>([]);
+  riderProfileName = signal<string>('');
+  notice = signal<{ type: 'success' | 'error'; message: string } | null>(null);
+  riderLookupPhone = '';
 
   // Scanner state
   showScannerModal = signal<boolean>(false);
@@ -337,6 +440,10 @@ export class RiderComponent implements OnInit, OnDestroy {
   riderPhone = '';
 
   ngOnInit() {
+    if (typeof window !== 'undefined') {
+      this.riderLookupPhone = window.localStorage.getItem('riderPhone') ?? '';
+      this.riderName = window.localStorage.getItem('riderName') ?? '';
+    }
     this.route.params.subscribe(params => {
       const taskNum = params['taskNumber'];
       if (taskNum) {
@@ -356,19 +463,96 @@ export class RiderComponent implements OnInit, OnDestroy {
     this.api.getTaskByNumber(taskNumber.trim().toUpperCase()).subscribe({
       next: (data) => {
         this.task.set(data);
+        if (data.rider && typeof window !== 'undefined') {
+          this.riderLookupPhone = data.rider.phone;
+          this.riderProfileName.set(data.rider.name);
+          window.localStorage.setItem('riderPhone', data.rider.phone);
+          window.localStorage.setItem('riderName', data.rider.name);
+        }
         this.loading.set(false);
       },
       error: (err) => {
-        alert(err.error?.error || 'ไม่พบใบงานนี้');
+        this.notice.set({ type: 'error', message: err.error?.error || 'ไม่พบใบงานนี้' });
         this.loading.set(false);
       }
     });
   }
 
+  loadMyTasks() {
+    const phone = this.riderLookupPhone.trim();
+    if (!phone) {
+      this.notice.set({ type: 'error', message: 'กรุณากรอกเบอร์โทรที่ใช้รับงาน' });
+      return;
+    }
+
+    this.tasksLoading.set(true);
+    this.hasLoadedMyTasks.set(false);
+    this.api.getRiderTasks(phone).subscribe({
+      next: (response) => {
+        this.riderTasks.set(response.tasks);
+        this.riderProfileName.set(response.rider?.name ?? '');
+        this.hasLoadedMyTasks.set(true);
+        this.tasksLoading.set(false);
+        if (response.rider && typeof window !== 'undefined') {
+          window.localStorage.setItem('riderPhone', response.rider.phone);
+          window.localStorage.setItem('riderName', response.rider.name);
+        }
+      },
+      error: (err) => {
+        this.tasksLoading.set(false);
+        this.hasLoadedMyTasks.set(true);
+        this.notice.set({ type: 'error', message: err.error?.error || 'โหลดรายการงานไม่สำเร็จ' });
+      }
+    });
+  }
+
+  openTask(taskNumber: string) {
+    this.showMyTasks.set(false);
+    this.searchTaskNumber = taskNumber;
+    this.loadTask(taskNumber);
+  }
+
+  deliveredStops(): number {
+    return this.task()?.stops.filter(stop => stop.deliveryStatus === 'DELIVERED').length ?? 0;
+  }
+
+  remainingStops(): number {
+    return this.task()?.stops.filter(stop => stop.deliveryStatus !== 'DELIVERED').length ?? 0;
+  }
+
+  progressPercent(delivered: number, total: number): number {
+    return total > 0 ? Math.round((delivered / total) * 100) : 0;
+  }
+
+  isNextPendingStop(itemId: number): boolean {
+    return this.task()?.stops.find(stop => stop.deliveryStatus === 'PENDING')?.itemId === itemId;
+  }
+
+  taskStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      CONFIRMED: 'รอรับงาน',
+      IN_PROGRESS: 'กำลังส่ง',
+      DELIVERED: 'ส่งครบแล้ว',
+      CANCELLED: 'ยกเลิก'
+    };
+    return labels[status] ?? status;
+  }
+
+  taskStatusClass(status: string): string {
+    const classes: Record<string, string> = {
+      CONFIRMED: 'bg-blue-950 text-blue-300',
+      IN_PROGRESS: 'bg-amber-950 text-amber-300',
+      DELIVERED: 'bg-emerald-950 text-emerald-300',
+      CANCELLED: 'bg-red-950 text-red-300'
+    };
+    return classes[status] ?? 'bg-slate-700 text-slate-300';
+  }
+
   confirmDelivery(itemId: number) {
     const currentTask = this.task();
-    if (!currentTask) return;
+    if (!currentTask || !this.isNextPendingStop(itemId) || this.updatingStopId()) return;
 
+    this.updatingStopId.set(itemId);
     this.api.completeStop(currentTask.taskNumber, itemId).subscribe({
       next: (res) => {
         // อัปเดตสถานะในหน้าจอ
@@ -380,11 +564,18 @@ export class RiderComponent implements OnInit, OnDestroy {
             stops: t.stops.map(s => s.itemId === itemId ? { ...s, deliveryStatus: 'DELIVERED' } : s)
           };
         });
+        this.updatingStopId.set(null);
+        this.notice.set({ type: 'success', message: res.message });
+        if (this.riderLookupPhone) this.loadMyTasks();
         if (res.isTaskCompleted) {
-          alert('🎉 เยี่ยมมาก! คุณจัดส่งครบทุกจุดในใบงานนี้แล้ว');
+          this.notice.set({ type: 'success', message: '🎉 จัดส่งครบทุกจุดในใบงานนี้แล้ว' });
         }
       },
-      error: (err) => alert(err.error?.error || 'เกิดข้อผิดพลาดในการบันทึก')
+      error: (err) => {
+        this.updatingStopId.set(null);
+        this.notice.set({ type: 'error', message: err.error?.error || 'เกิดข้อผิดพลาดในการบันทึก' });
+        this.loadTask(currentTask.taskNumber);
+      }
     });
   }
 
@@ -401,10 +592,35 @@ export class RiderComponent implements OnInit, OnDestroy {
       riderPhone: this.riderPhone
     }).subscribe({
       next: () => {
+        this.riderLookupPhone = this.riderPhone;
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem('riderPhone', this.riderPhone);
+          window.localStorage.setItem('riderName', this.riderName);
+        }
         this.showCheckinModal.set(false);
+        this.notice.set({ type: 'success', message: 'รับใบงานเรียบร้อย เริ่มจัดส่งตามลำดับได้เลย' });
+        this.loadMyTasks();
         this.loadTask(currentTask.taskNumber);
       },
-      error: (err) => alert(err.error?.error || 'ไม่สามารถลงชื่อได้')
+      error: (err) => {
+        const errorBody = err.error as { error?: string; code?: string; activeTaskNumber?: string };
+        if (errorBody?.code === 'ACTIVE_TASK_EXISTS' && errorBody.activeTaskNumber) {
+          this.showCheckinModal.set(false);
+          this.riderLookupPhone = this.riderPhone;
+          this.notice.set({
+            type: 'error',
+            message: `${errorBody.error} ระบบเปิดใบงานที่ค้างให้แล้ว`
+          });
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem('riderPhone', this.riderPhone);
+            window.localStorage.setItem('riderName', this.riderName);
+          }
+          this.loadMyTasks();
+          this.openTask(errorBody.activeTaskNumber);
+          return;
+        }
+        this.notice.set({ type: 'error', message: errorBody?.error || 'ไม่สามารถลงชื่อได้' });
+      }
     });
   }
 

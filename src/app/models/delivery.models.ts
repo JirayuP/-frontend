@@ -125,10 +125,12 @@ export interface RiderTaskDetail {
   status: string;
   routeColor: string;
   totalStopsCount?: number;
+  deliveredStopsCount?: number;
+  remainingStopsCount?: number;
   rider?: {
     name: string;
     phone: string;
-    vehiclePlate: string;
+    vehiclePlate: string | null;
   };
   stops: {
     itemId: number;
@@ -144,4 +146,36 @@ export interface RiderTaskDetail {
     deliveryStatus: 'PENDING' | 'DELIVERED' | 'FAILED';
     navigationUrl: string;
   }[];
+}
+
+export interface RiderTaskSummary {
+  id: number;
+  taskNumber: string;
+  date: string;
+  status: string;
+  totalBoxes: number;
+  totalDistance: number;
+  deliveryFee: number;
+  totalStops: number;
+  deliveredStops: number;
+  remainingStops: number;
+}
+
+export interface RiderTasksResponse {
+  rider: {
+    id: number;
+    name: string;
+    phone: string;
+    vehiclePlate: string | null;
+    status: string;
+  } | null;
+  tasks: RiderTaskSummary[];
+}
+
+export interface CompleteStopResponse {
+  message: string;
+  itemId: number;
+  stopSequence: number;
+  remainingStops: number;
+  isTaskCompleted: boolean;
 }

@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   ConfirmTasksResponse,
+  CompleteStopResponse,
   Customer,
   CustomerListResponse,
   CustomerMutationResponse,
@@ -11,6 +12,7 @@ import {
   OptimizationResult,
   ProposedTask,
   RiderTaskDetail,
+  RiderTasksResponse,
   RouteStrategy
 } from '../models/delivery.models.js';
 
@@ -124,12 +126,18 @@ export class DeliveryApiService {
     return this.http.get<RiderTaskDetail>(`${this.apiUrl}/tasks/${taskNumber}`);
   }
 
+  getRiderTasks(phone: string): Observable<RiderTasksResponse> {
+    return this.http.get<RiderTasksResponse>(
+      `${this.apiUrl}/tasks/rider/${encodeURIComponent(phone)}`
+    );
+  }
+
   getTaskQr(taskNumber: string): Observable<{ taskNumber: string; qrDataUrl: string }> {
     return this.http.get<{ taskNumber: string; qrDataUrl: string }>(`${this.apiUrl}/tasks/${taskNumber}/qr`);
   }
 
-  completeStop(taskNumber: string, itemId: number): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/tasks/${taskNumber}/stops/${itemId}/complete`, {});
+  completeStop(taskNumber: string, itemId: number): Observable<CompleteStopResponse> {
+    return this.http.patch<CompleteStopResponse>(`${this.apiUrl}/tasks/${taskNumber}/stops/${itemId}/complete`, {});
   }
 
   riderCheckIn(taskNumber: string, riderData: { riderName: string; riderPhone: string; vehiclePlate?: string }): Observable<any> {
