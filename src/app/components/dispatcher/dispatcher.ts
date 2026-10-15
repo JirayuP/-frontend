@@ -23,26 +23,31 @@ export class DispatcherComponent implements OnInit, OnDestroy {
   private map: L.Map | null = null;
   private routeLayers: L.LayerGroup = L.layerGroup();
 
+  // โหลดข้อมูลแดชบอร์ดและเตรียมแผนที่
   ngOnInit() {
     this.reloadDashboard();
     setTimeout(() => this.initMap(), 100);
   }
 
+  // ลบแผนที่เมื่อออกจากหน้าเพื่อคืนทรัพยากร
   ngOnDestroy() {
     if (this.map) {
       this.map.remove();
     }
   }
 
+  // นับจำนวนออเดอร์ที่ยังรอจัดเส้นทาง
   pendingCount(): number {
     return this.orders().filter(o => o.status === 'PENDING').length;
   }
 
+  // โหลดออเดอร์และใบงานของวันนี้ใหม่
   reloadDashboard() {
     this.loadOrders();
     this.restoreTodayRoutes();
   }
 
+  // โหลดแผนเส้นทางที่ยืนยันแล้วของวันนี้
   restoreTodayRoutes() {
     this.api.getTodayRoutes().subscribe({
       next: (result) => {
@@ -65,6 +70,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     });
   }
 
+  // โหลดรายการออเดอร์ทั้งหมด
   loadOrders() {
     this.api.getOrders().subscribe({
       next: (data) => {
@@ -79,6 +85,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     });
   }
 
+  // สร้างออเดอร์จำลองสำหรับทดสอบระบบ
   seedOrders() {
     this.loading.set(true);
     this.api.seedMockOrders().subscribe({
@@ -96,6 +103,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ยืนยันและล้างออเดอร์กับใบงานทั้งหมด
   clearAll() {
     if (confirm('คุณต้องการล้างข้อมูลออเดอร์และใบงานทั้งหมดหรือไม่?')) {
       this.loading.set(true);
@@ -114,6 +122,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     }
   }
 
+  // สั่งคำนวณแผนเส้นทางใหม่
   runOptimization() {
     this.loading.set(true);
     this.api.optimizeRoutes().subscribe({
@@ -130,6 +139,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     });
   }
 
+  // เลือกแผนเส้นทางจากตัวเลือกที่คำนวณไว้
   selectPlan(alternative: OptimizationAlternative) {
     const current = this.optimizationData();
     if (!current || this.isConfirmed()) return;
@@ -145,6 +155,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     this.renderRoutesOnMap(selected);
   }
 
+  // ยืนยันแผนและปล่อยใบงานให้ไรเดอร์
   confirmDispatch() {
     const data = this.optimizationData();
     if (!data || this.loading()) return;
@@ -169,6 +180,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     });
   }
 
+  // โหลดและเปิด QR Code ของใบงาน
   openQrModal(taskNumber: string) {
     this.api.getTaskQr(taskNumber).subscribe({
       next: (res) => this.activeQr.set(res),
@@ -176,6 +188,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     });
   }
 
+  // แปลงสถานะใบงานเป็นข้อความภาษาไทย
   taskStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       CONFIRMED: 'รอไรเดอร์รับ',
@@ -186,6 +199,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     return labels[status] ?? status;
   }
 
+  // คืนคลาสสีตามสถานะใบงาน
   taskStatusClass(status: string): string {
     const classes: Record<string, string> = {
       CONFIRMED: 'bg-blue-100 text-blue-700',
@@ -196,6 +210,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     return classes[status] ?? 'bg-slate-100 text-slate-600';
   }
 
+  // สร้างแผนที่และปักหมุดจุดเริ่มต้น
   private initMap() {
     const hubLat = 16.246825;
     const hubLng = 103.252072;
@@ -234,6 +249,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     if (currentResult) this.renderRoutesOnMap(currentResult);
   }
 
+  // วาดเส้นทางและจุดส่งทั้งหมดบนแผนที่
   private renderRoutesOnMap(result: OptimizationResult) {
     if (!this.map) return;
     this.routeLayers.clearLayers();

@@ -38,15 +38,18 @@ export class ManagementComponent implements OnInit, OnDestroy {
   newOrderCustomerId = 0;
   newOrderBoxes = 1;
 
+  // โหลดข้อมูลเริ่มต้นและเตรียมแผนที่
   ngOnInit(): void {
     this.loadAll();
     setTimeout(() => this.initMap());
   }
 
+  // ลบแผนที่เมื่อออกจากหน้าเพื่อคืนทรัพยากร
   ngOnDestroy(): void {
     this.map?.remove();
   }
 
+  // โหลดข้อมูลลูกค้าและออเดอร์ทั้งหมด
   loadAll(): void {
     this.loading.set(true);
     this.api.getCustomers().subscribe({
@@ -62,6 +65,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  // สร้างลูกค้าใหม่หรือบันทึกข้อมูลที่แก้ไข
   saveCustomer(): void {
     const payload = { ...this.customerForm };
     const request = this.editingCustomerId()
@@ -78,6 +82,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  // นำข้อมูลลูกค้ามาแสดงในฟอร์มเพื่อแก้ไข
   editCustomer(customer: Customer): void {
     this.editingCustomerId.set(customer.id);
     this.customerForm = {
@@ -91,12 +96,14 @@ export class ManagementComponent implements OnInit, OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // ล้างฟอร์มลูกค้าและกลับสู่ค่าเริ่มต้น
   resetCustomerForm(): void {
     this.editingCustomerId.set(null);
     this.customerForm = this.emptyCustomerForm();
     this.showSelectedLocation(this.customerForm.latitude, this.customerForm.longitude);
   }
 
+  // ยืนยันและลบลูกค้าที่เลือก
   deleteCustomer(customer: Customer): void {
     if (!confirm(`ลบลูกค้า ${customer.name} หรือไม่?`)) return;
     this.loading.set(true);
@@ -106,6 +113,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  // สร้างออเดอร์ใหม่ให้ลูกค้าที่เลือก
   createOrder(): void {
     if (!this.newOrderCustomerId) return;
     this.loading.set(true);
@@ -115,6 +123,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  // แก้ไขจำนวนกล่องของออเดอร์
   updateOrderBoxes(order: Order, boxAmount: number): void {
     this.loading.set(true);
     this.api.updateOrder(order.id, { boxAmount }).subscribe({
@@ -123,6 +132,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ยืนยันและลบออเดอร์ที่ยังไม่จัดส่ง
   deleteOrder(order: Order): void {
     if (order.status !== 'PENDING' || !confirm(`ลบออเดอร์ #${order.id} หรือไม่?`)) return;
     this.loading.set(true);
@@ -132,6 +142,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  // สร้างแผนที่และตั้งค่าการเลือกพิกัดลูกค้า
   private initMap(): void {
     this.map = L.map('customer-map').setView(this.hub, 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -148,6 +159,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     this.renderCustomerMarkers();
   }
 
+  // แสดงหมุดของลูกค้าทั้งหมดบนแผนที่
   private renderCustomerMarkers(): void {
     if (!this.map) return;
     this.markers.clearLayers();
@@ -160,6 +172,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     }
   }
 
+  // แสดงหมุดและเลื่อนแผนที่ไปยังพิกัดที่เลือก
   private showSelectedLocation(latitude: number, longitude: number): void {
     if (!this.map) return;
     this.selectedMarker?.remove();
@@ -167,16 +180,19 @@ export class ManagementComponent implements OnInit, OnDestroy {
     this.map.panTo([latitude, longitude]);
   }
 
+  // สร้างข้อมูลเริ่มต้นสำหรับฟอร์มลูกค้า
   private emptyCustomerForm(): CustomerForm {
     return { name: '', phone: '', addressDetail: '', latitude: 16.246825, longitude: 103.252072 };
   }
 
+  // แสดงข้อความเมื่อทำรายการสำเร็จ
   private succeed(message: string): void {
     this.message.set(message);
     this.hasError.set(false);
     this.loading.set(false);
   }
 
+  // แปลงข้อผิดพลาดและแสดงข้อความให้ผู้ใช้
   private fail(error: unknown): void {
     const message = error instanceof HttpErrorResponse
       ? String(error.error?.error ?? error.message)
@@ -186,6 +202,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     this.loading.set(false);
   }
 
+  // แปลงอักขระพิเศษก่อนนำข้อความไปแสดงใน HTML
   private escapeHtml(value: string): string {
     return value.replace(/[&<>'"]/g, (character) => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'

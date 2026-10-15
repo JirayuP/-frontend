@@ -39,6 +39,7 @@ export class RiderComponent implements OnInit, OnDestroy {
   riderName = '';
   riderPhone = '';
 
+  // โหลดข้อมูลไรเดอร์เดิมและเปิดใบงานจาก URL
   ngOnInit() {
     if (typeof window !== 'undefined') {
       this.riderLookupPhone = window.localStorage.getItem('riderPhone') ?? '';
@@ -53,10 +54,12 @@ export class RiderComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ปิดกล้องสแกนเมื่อออกจากหน้า
   ngOnDestroy() {
     this.stopCameraScanner();
   }
 
+  // โหลดรายละเอียดใบงานตามหมายเลขงาน
   loadTask(taskNumber: string) {
     if (!taskNumber) return;
     this.loading.set(true);
@@ -78,6 +81,7 @@ export class RiderComponent implements OnInit, OnDestroy {
     });
   }
 
+  // โหลดรายการใบงานของไรเดอร์ตามเบอร์โทรศัพท์
   loadMyTasks() {
     const phone = this.riderLookupPhone.trim();
     if (!phone) {
@@ -106,28 +110,34 @@ export class RiderComponent implements OnInit, OnDestroy {
     });
   }
 
+  // เปิดใบงานที่เลือกจากรายการงานของไรเดอร์
   openTask(taskNumber: string) {
     this.showMyTasks.set(false);
     this.searchTaskNumber = taskNumber;
     this.loadTask(taskNumber);
   }
 
+  // นับจำนวนจุดส่งที่จัดส่งสำเร็จแล้ว
   deliveredStops(): number {
     return this.task()?.stops.filter(stop => stop.deliveryStatus === 'DELIVERED').length ?? 0;
   }
 
+  // นับจำนวนจุดส่งที่ยังเหลืออยู่
   remainingStops(): number {
     return this.task()?.stops.filter(stop => stop.deliveryStatus !== 'DELIVERED').length ?? 0;
   }
 
+  // คำนวณเปอร์เซ็นต์ความคืบหน้าของใบงาน
   progressPercent(delivered: number, total: number): number {
     return total > 0 ? Math.round((delivered / total) * 100) : 0;
   }
 
+  // ตรวจสอบว่าจุดส่งนี้เป็นจุดถัดไปที่ต้องส่งหรือไม่
   isNextPendingStop(itemId: number): boolean {
     return this.task()?.stops.find(stop => stop.deliveryStatus === 'PENDING')?.itemId === itemId;
   }
 
+  // แปลงสถานะใบงานเป็นข้อความภาษาไทย
   taskStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       CONFIRMED: 'รอรับงาน',
@@ -138,6 +148,7 @@ export class RiderComponent implements OnInit, OnDestroy {
     return labels[status] ?? status;
   }
 
+  // คืนคลาสสีตามสถานะใบงาน
   taskStatusClass(status: string): string {
     const classes: Record<string, string> = {
       CONFIRMED: 'bg-blue-950 text-blue-300',
@@ -148,6 +159,7 @@ export class RiderComponent implements OnInit, OnDestroy {
     return classes[status] ?? 'bg-slate-700 text-slate-300';
   }
 
+  // ยืนยันว่าจัดส่งสินค้าในจุดนี้สำเร็จแล้ว
   confirmDelivery(itemId: number) {
     const currentTask = this.task();
     if (!currentTask || !this.isNextPendingStop(itemId) || this.updatingStopId()) return;
@@ -179,6 +191,7 @@ export class RiderComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ส่งข้อมูลไรเดอร์เพื่อรับใบงาน
   submitCheckin() {
     if (!this.riderName || !this.riderPhone) {
       alert('กรุณากรอกชื่อและเบอร์โทร');
@@ -226,6 +239,7 @@ export class RiderComponent implements OnInit, OnDestroy {
 
   // ===================== QR Scanner Methods =====================
 
+  // เปิดหน้าต่างสแกน QR Code และเริ่มกล้อง
   openQrScanner() {
     this.showScannerModal.set(true);
     this.scannerError.set(null);
@@ -234,6 +248,7 @@ export class RiderComponent implements OnInit, OnDestroy {
     }, 250);
   }
 
+  // เปิดกล้องและเริ่มตรวจหา QR Code
   async startCameraScanner() {
     try {
       const container = document.getElementById('qr-reader');
@@ -260,6 +275,7 @@ export class RiderComponent implements OnInit, OnDestroy {
     }
   }
 
+  // หยุดกล้องและล้างตัวสแกน QR Code
   async stopCameraScanner() {
     if (this.html5QrCode) {
       try {
@@ -275,11 +291,13 @@ export class RiderComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ปิดตัวสแกนและหน้าต่าง QR Code
   async closeQrScanner() {
     await this.stopCameraScanner();
     this.showScannerModal.set(false);
   }
 
+  // แปลงผลสแกนเป็นหมายเลขงานแล้วเปิดใบงาน
   handleQrScanSuccess(decodedText: string) {
     this.closeQrScanner();
 
@@ -300,6 +318,7 @@ export class RiderComponent implements OnInit, OnDestroy {
     }
   }
 
+  // อ่าน QR Code จากไฟล์รูปภาพที่เลือก
   async onFileScan(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
