@@ -22,12 +22,22 @@
       </header>
 
       <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-        <!-- Local demo error -->
+        <!-- Error Banner หาก Backend หรือ Database มีปัญหา -->
         @if (apiError()) {
-          <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl shadow-sm flex items-center gap-3">
-            <span class="text-2xl">!</span>
-            <p class="flex-1 text-sm">{{ apiError() }}</p>
-            <button (click)="reloadDashboard()" class="min-h-10 text-xs px-3 py-1.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">ลองใหม่</button>
+          <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl shadow-sm flex flex-col sm:flex-row items-start gap-3">
+            <span class="text-2xl">⚠️</span>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm text-red-900">เกิดข้อผิดพลาดในการเชื่อมต่อ Database ของ Backend</h3>
+              <p class="text-xs text-red-700 mt-1">
+                Backend ส่ง Error กลับมา: <span class="font-mono bg-red-100 px-1 py-0.5 rounded">{{ apiError() }}</span>
+              </p>
+              <p class="text-xs text-red-600 mt-1">
+                💡 คำแนะนำ: หาก Deploy บน Railway กรุณาไปที่แท็บ <strong>Variables</strong> แล้วเพิ่ม <code>DATABASE_URL</code> ของ MySQL
+              </p>
+            </div>
+            <button (click)="reloadDashboard()" class="w-full sm:w-auto min-h-10 text-xs px-3 py-1.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
+              ลองใหม่
+            </button>
           </div>
         }
 
@@ -80,7 +90,7 @@
               <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div>
                   <h2 class="font-bold text-sm text-slate-800">เลือกแผนจัดส่งก่อนปล่อยงาน</h2>
-                  <p class="text-xs text-slate-500">คำนวณแผนจากข้อมูลตัวอย่างในหน้าเว็บ</p>
+                  <p class="text-xs text-slate-500">ระบบคำนวณใหม่จากออเดอร์ชุดเดียวกันและยืนยันแผนที่เลือกกับเซิร์ฟเวอร์อีกครั้ง</p>
                 </div>
                 <span class="text-xs font-semibold text-orange-700 bg-orange-50 px-3 py-1 rounded-full">
                   แผนปัจจุบัน: {{ optimizationData()!.strategyLabel }}

@@ -59,7 +59,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
         this.renderRoutesOnMap(result);
       },
       error: (err) => {
-        const errMsg = err.error?.error || err.message || 'คำนวณแผนจากข้อมูลตัวอย่างในหน้าเว็บ';
+        const errMsg = err.error?.error || err.message || 'ไม่สามารถโหลดใบงานที่ปล่อยแล้วได้';
         this.apiError.set(errMsg);
       }
     });
@@ -73,7 +73,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error loading orders:', err);
-        const errMsg = err.error?.error || err.message || 'คำนวณแผนจากข้อมูลตัวอย่างในหน้าเว็บ';
+        const errMsg = err.error?.error || err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ Backend ได้';
         this.apiError.set(errMsg);
       }
     });
@@ -90,7 +90,7 @@ export class DispatcherComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.loading.set(false);
-        const errMsg = err.error?.error || err.message || 'คำนวณแผนจากข้อมูลตัวอย่างในหน้าเว็บ';
+        const errMsg = err.error?.error || err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
         alert(`เกิดข้อผิดพลาดในการจำลองออเดอร์: ${errMsg}`);
       }
     });
@@ -152,7 +152,8 @@ export class DispatcherComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.api.confirmTasks(data.tasks, data.strategy).subscribe({
       next: (response) => {
-        // Confirm the locally generated demo tasks.
+        // Confirmation is authoritative: the server recalculates values and
+        // may allocate different task numbers after a concurrent dispatch.
         this.optimizationData.set(response.result);
         this.isConfirmed.set(true);
         this.loading.set(false);
